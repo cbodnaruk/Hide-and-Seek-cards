@@ -31,6 +31,7 @@ export class Card {
 
 
         this.DOM = newCard;
+        this.id = card_data.id;
     }
     focus(){
         this.DOM.addClass("focused");
@@ -43,6 +44,7 @@ export class Card {
     print() {
         console.log(this.DOM);
     }
+    
 }
 
 export class Hand {
@@ -54,6 +56,7 @@ export class Hand {
     addCard(card) {
         this.cards.push(card);
         this.DOM.append(card.DOM);
+        $("#player_hand").html(this.DOM);
     }
 
     print() {

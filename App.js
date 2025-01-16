@@ -4,11 +4,19 @@ var cards = []
 $.getJSON("./deck.json", function (data) {
     cards = data;
 
-    for (var i = 0; i < 5; i++) {
-        var randomCard = Math.floor(Math.random() * cards.length) + 1
-        hand.addCard(getCard(randomCard))
-    }
-    $("#player_hand").append(hand.DOM);
+    // generate cards for testing
+    // for (var i = 0; i < 5; i++) {
+    //     var randomCard = Math.floor(Math.random() * cards.length) + 1
+    //     hand.addCard(getCard(randomCard))
+    //     $("#player_hand").append(hand.DOM);
+    // }
+    if (localStorage.getItem("hand")) {
+        JSON.parse(localStorage.getItem("hand")).forEach(card => {
+        hand.addCard(getCard(card.id))
+        // $("#player_hand").append(hand.DOM);
+    })}
+
+
 })
 
 function cardClicked(cardDOM) {
@@ -119,6 +127,7 @@ function drawCards() {
                 if ($(this).hasClass("selected_draw")) {
                     var card = drawnIds[$(this).index()]
                     hand.addCard(getCard(card))
+                    localStorage.setItem("hand", JSON.stringify(hand.cards))
                 } else {
                     var card = $(this)
                     card.animate({ left: "-500px" }, 300, 'swing', function () { card.remove()

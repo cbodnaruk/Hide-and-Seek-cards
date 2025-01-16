@@ -1,7 +1,6 @@
 /* @import url('https://fonts.cdnfonts.com/css/infra'); */
 body {
     font-family: Infra;
-    max-width: 400px;
 }
 .card {
     border-color: black;
