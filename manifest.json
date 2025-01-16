@@ -1,0 +1,21 @@
+{
+    "name": "Hide and Seek Cards",
+    "short_name": "HideSeek",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#4943a3",
+    "description": "A card management web app for Jetlag hide and seek.",
+    "icons": [
+        {
+            "src": "",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
