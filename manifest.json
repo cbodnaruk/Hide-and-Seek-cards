@@ -8,12 +8,12 @@
     "description": "A card management web app for Jetlag hide and seek.",
     "icons": [
         {
-            "src": "",
+            "src": "icon192.png",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "",
+            "src": "icon512.png",
             "sizes": "512x512",
             "type": "image/png"
         }

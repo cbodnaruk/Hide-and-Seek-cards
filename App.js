@@ -10,7 +10,9 @@ $.getJSON("./deck.json", function (data) {
     //     hand.addCard(getCard(randomCard))
     //     $("#player_hand").append(hand.DOM);
     // }
+    handSize(0)
     if (localStorage.getItem("hand")) {
+        handSize(JSON.parse(localStorage.getItem("hand")).length)
         JSON.parse(localStorage.getItem("hand")).forEach(card => {
         hand.addCard(getCard(card.id))
         // $("#player_hand").append(hand.DOM);
@@ -18,6 +20,10 @@ $.getJSON("./deck.json", function (data) {
 
 
 })
+
+function handSize(size){
+    $("#hand_size").text(`${size}/6`)
+}
 
 function cardClicked(cardDOM) {
 
@@ -77,6 +83,7 @@ function discardCard() {
     card.animate({ top: "-500px" }, 300, 'swing', function () { card.remove() })
 
     unfocus()
+    handSize(hand.cards.length)
     console.log("card discarded")
 }
 
@@ -128,6 +135,7 @@ function drawCards() {
                     var card = drawnIds[$(this).index()]
                     hand.addCard(getCard(card))
                     localStorage.setItem("hand", JSON.stringify(hand.cards))
+                    handSize(hand.cards.length)
                 } else {
                     var card = $(this)
                     card.animate({ left: "-500px" }, 300, 'swing', function () { card.remove()
