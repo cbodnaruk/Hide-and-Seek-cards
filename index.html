@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hide and Seek Cards</title>
+    <script src="components/Card.js" type="module"></script>
+    <script src="components/Hand.js" type="module"></script>
+    <script src="Constructors.js" type="module"></script>
+    <script src="deck.json" type="application/json"></script>
+    <script src="jquery.js"></script>
+    <script src="App.js" type="module"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="player_hand"></div>
+    <div class="container">
+        <div id="discard_button" onclick="discardCard()">Play Discard</div>
+    </div>
+    <div class="container">
+    <div id="draw_dialog">
+        Draw:
+        <div id="draw_select" class="draw_options">
+            <div class="option" onclick="selectOption(this)">1</div>
+            <div class="option" onclick="selectOption(this)">2</div>
+            <div class="option" onclick="selectOption(this)">3</div>
+            <div class="option" onclick="selectOption(this)">4</div>
+        </div>
+        Keep:
+        <div id="keep_select" class="draw_options">
+            <div class="option" onclick="selectOption(this)">1</div>
+            <div class="option" onclick="selectOption(this)">2</div>
+        </div>
+        <div class="container"><div class="draw_button" onclick="drawCards()">Draw</div></div>
+        
+
+    </div></div>
+    <div class="container">
+        <div id="deck_button" onclick="showDraw()">Draw</div>
+        </div>
+    <div id="draw_market"></div>
+    <div id="focus_background" onclick="unfocus()"></div>
+</body>
+
+</html>

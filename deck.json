@@ -1,0 +1,569 @@
+[
+    {
+      "id": 1,
+      "type": "curse",
+      "content": "One Seeker must message \"Happy New Year\" to one person of their choosing. They cannot ask another question until they receive a response. If they have not received a response after 15 minutes, they can message a new person.",
+      "title": "Curse of the Real Friend",
+      "cost": "Recieve a \"Happy New Year\" message."
+    },
+    {
+      "id": 2,
+      "type": "curse",
+      "content": "For the next hour, whenever the seekers want to pass through a doorway into a building, business, train, or other vehicle, they must first roll two dice. If they do not roll a 7 or higher, they cannot enter that space (including through other doorways.)\n\nAny given doorway can be re-attempted after 10 minutes.",
+      "title": "Curse of the Jammed Door",
+      "cost": "Discard a card."
+    },
+    {
+      "id": 3,
+      "type": "curse",
+      "content": "For the next 20 minutes, seekers must roll a die before walking, and walk the amount of steps indicated on the die.",
+      "title": "Curse of the Gambler’s Feet",
+      "cost": "Roll a die. If it’s even, this curse has no effect"
+    },
+    {
+      "id": 4,
+      "type": "curse",
+      "content": "Choose a publicly accessible place within 500m of the seekers’ current location. They must go there and spend at least 5 minutes there before asking another question. They must bring you a souvenir. If it is lost, you are awarded an extra 20 minutes.",
+      "title": "Curse of the Mediocre Travel Agent",
+      "cost": "The vacation destination must be further from you than their current location. This cannot be cast while the seekers are on transport."
+    },
+    {
+      "id": 5,
+      "type": "curse",
+      "content": "The next question that the seekers ask must be composed of words and letters cut out of printed material.",
+      "title": "Curse of the Ransom Note",
+      "cost": "Spell out “curse of the ransom note” as a ransom note"
+    },
+    {
+      "id": 6,
+      "type": "curse",
+      "content": "Choose three questions in different categories. The seekers cannot ask those questions for the rest of your run.",
+      "title": "Curse of the Drained Brain",
+      "cost": "Discard your hand"
+    },
+    {
+      "id": 7,
+      "type": "curse",
+      "content": "Send the seekers an unzoomed Google Street View image from a street within 200 metres of where they are now. The shot has to be parallel to the horizon and has to include at least one human-built structure other than a road. Without using the internet for research, they must find what you sent them in real life before they can use transportation or ask another question. They must send a picture to the hider for verification.",
+      "title": "Curse of the Unguided Tourist",
+      "cost": "Discard a card, seekers must also be outside"
+    },
+    {
+      "id": 8,
+      "type": "curse",
+      "content": "Place a point at least 300m away from where the seekers currently are. If, in exactly 10 minutes, they are within 100m from the point, they are frozen for 20 minutes.",
+      "title": "Curse of the Frozen Dot",
+      "cost": "Seekers must be more than 5km from the hider"
+    },
+    {
+      "id": 9,
+      "type": "curse",
+      "content": "Before asking a question or taking another form of transportation, the seekers must win at hangman. The hider chooses a 5 letter word, and the game ends either after a correct guess or 7 incorrect letters. The hider must respond to all requests within 30 seconds. If the seekers fail, they have to wait 5 minutes before playing again. After 3 losses, the seekers are released.",
+      "title": "Curse of the Hidden Hangman",
+      "cost": "Discard 2 cards"
+    },
+    {
+      "id": 10,
+      "type": "curse",
+      "content": "Before asking a question or taking transportation, the seekers must throw a paper plane 10 consecutive metres.",
+      "title": "Curse of the Paper Plane",
+      "cost": "Make a paper plane and send a photo of you with the paper plane to the seekers."
+    },
+    {
+      "id": 11,
+      "type": "curse",
+      "content": "The seekers must immediately get off their transportation at the next stop.",
+      "title": "Curse of the Train Derailment",
+      "cost": "Discard a curse, Seekers must be on transportation"
+    },
+    {
+      "id": 12,
+      "type": "curse",
+      "content": "Roll 2 dice. For the next hour, you may only continuously travel for the amount of stops up to or equivalent to the roll.",
+      "title": "Curse of the Snake Eyes",
+      "cost": "Roll a 1 or 2 on a single die"
+    },
+    {
+      "id": 13,
+      "type": "curse",
+      "content": "For the next hour, the seekers can only get on and off transport at odd numbered times (e.g. 10:05am, 1:53pm).",
+      "title": "Curse of the Odd Trip",
+      "cost": "Hider must take photos of odd numbers 1-9 found in public spaces and send to the seekers (they may not use house numbers)"
+    },
+    {
+      "id": 14,
+      "type": "curse",
+      "content": "Before asking a question or taking transportation, the seekers must find a country’s flag that is not Australia. A picture of the flag is fine, as long as it’s not on their phone.",
+      "title": "Curse of the Multicultural",
+      "cost": "Find a flag from a country that is not Australia and send the seekers a picture."
+    },
+    {
+      "id": 15,
+      "type": "curse",
+      "content": "Before asking a question, the seekers must find a book by a famous Australian children's author: Emily Rodda, Andy Griffiths, Shaun Tan, or Jackie French.",
+      "title": "Curse of the Prolific Author",
+      "cost": "Find a children's book and (video) record yourself reading out a passage (at least 20 seconds) to the seekers."
+    },
+    {
+      "id": 16,
+      "type": "curse",
+      "content": "Before asking a question, the seekers must submerged their feet in water.",
+      "title": "Curse of the \"Who Let the Dogs Out",
+      "cost": "Submerge your feet in water and send a photo to the seekers."
+    },
+    {
+      "id": 17,
+      "type": "curse",
+      "content": "Before taking further transportation, the seekers must purchase and finish a cold drink. This drink must be made by an employee (e.g. bubble tea, milkshake), not pre-packaged.",
+      "title": "Curse of the Thirs(t)",
+      "cost": "Hider must consume a drink \\#stayhydrated"
+    },
+    {
+      "id": 18,
+      "type": "curse",
+      "content": "Before taking any further transportation, purchase, eat and review an item of food that you've never eaten before.",
+      "title": "Curse of the Snack Zone",
+      "cost": "Send a video outdoors reviewing a snack that you haven't eaten before."
+    },
+    {
+      "id": 19,
+      "type": "curse",
+      "content": "Before taking any further transportation, seekers must consume something from a food place in their suburb with a google rating under 3.5 stars. Send proof of consumption to the hider.",
+      "title": "Curse of the Mediocre Lunch",
+      "cost": "Discard one card, and send seekers a screenshot of a review (at least ten words) from a restaurant in your hiding zone. If there is none, the nearest restaurant to your station."
+    },
+    {
+      "id": 20,
+      "type": "curse",
+      "content": "Find a restaurant within your zone that explicity serves food from a specific foreign country, and purchase food or drink of that cuisine. The seekers must visit a restaurant serving food from a country that is an equal or greater distance away before asking another question.",
+      "title": "Curse of the Distant Cuisine",
+      "cost": "You must be at the restaurant of the foreign cuisine."
+    },
+    {
+      "id": 21,
+      "type": "curse",
+      "content": "Before asking another question, a seeker must be at least one metre above the ground, in a tree, for at least 10 seconds",
+      "title": "Curse of the Lisa",
+      "cost": "Send a photo of a tree that is taller than you"
+    },
+    {
+      "id": 22,
+      "type": "curse",
+      "content": "Before taking transportation, the seekers must find a car with a licence plate NOT from NSW, that must be equal to or further distance from NSW as the plate found by the hider.",
+      "title": "Curse of the Domestic Tourist",
+      "cost": "Find a license plate NOT from NSW, send a photo of it to the seekers. the whole front or back of the car must be visible in the photo."
+    },
+    {
+      "id": 23,
+      "type": "curse",
+      "content": "Before taking any further transportation, seekers must purchase at least three different types of fruit and create a recogniseable shape with them.",
+      "title": "Curse of the Soupe Opera",
+      "cost": "Hider must fully consume one full fruit (diameter at least 5cm at thickest point)."
+    },
+    {
+      "id": 24,
+      "type": "curse",
+      "content": "Before asking any further questions, the seekers must obtain a costume piece, and write an acapella song dedicated to your hider. Both seekers must participate and send the hider a video of their performance. The song must be at least 30 seconds long.",
+      "title": "Curse of the A Cappella",
+      "cost": "Hider must send a (10 second) video outdoors of them singing in a public place."
+    },
+    {
+      "id": 25,
+      "type": "curse",
+      "content": "For the next hour, the seeking team can communicate with each other only through text to speech. If you are able to receive a voice message during this time from someone not playing in the game, the curse ends. You may prompt someone to send the voice message but can only do so indirectly (e.g. cannot tell them you want a voice message from them)",
+      "title": "Curse of the Laryngitis",
+      "cost": "Send a 1 min audio recording from your current location. You must be outdoors."
+    },
+    {
+      "id": 26,
+      "type": "curse",
+      "content": "Seekers must film a bird for the same amount of time or longer than the hider before asking another question.",
+      "title": "Curse of the Bird Guide",
+      "cost": "Film a bird. The hider has one chance to film a bird for as long as possible, up to 5 minutes straight. If, at any point, the bird leaves the frame, your timer is stopped."
+    },
+    {
+      "id": 27,
+      "type": "curse",
+      "content": "Before asking another question, send a video of at least 1 seeker climbing a structure (man made or natural) until they are at least 2m above the ground. Use your own discretion for danger level (pls don't injure yourselves). You must actually climb the structure rather than getting to the top via a different route. You cannot climb private property.",
+      "title": "Curse of the Boulderer",
+      "cost": "Climb a structure and throw a card from your hand from the top once you have done so (this card is discarded) (pls don't lose the card). Send seekers a photo of this in action."
+    },
+    {
+      "id": 28,
+      "type": "time_bonus",
+      "content": 2,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 29,
+      "type": "time_bonus",
+      "content": 2,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 30,
+      "type": "time_bonus",
+      "content": 2,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 31,
+      "type": "time_bonus",
+      "content": 2,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 32,
+      "type": "time_bonus",
+      "content": 2,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 33,
+      "type": "time_bonus",
+      "content": 2,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 34,
+      "type": "time_bonus",
+      "content": 2,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 35,
+      "type": "time_bonus",
+      "content": 2,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 36,
+      "type": "time_bonus",
+      "content": 2,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 37,
+      "type": "time_bonus",
+      "content": 2,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 38,
+      "type": "time_bonus",
+      "content": 2,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 39,
+      "type": "time_bonus",
+      "content": 2,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 40,
+      "type": "time_bonus",
+      "content": 2,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 41,
+      "type": "time_bonus",
+      "content": 2,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 42,
+      "type": "time_bonus",
+      "content": 2,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 43,
+      "type": "time_bonus",
+      "content": 2,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 44,
+      "type": "time_bonus",
+      "content": 5,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 45,
+      "type": "time_bonus",
+      "content": 5,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 46,
+      "type": "time_bonus",
+      "content": 5,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 47,
+      "type": "time_bonus",
+      "content": 5,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 48,
+      "type": "time_bonus",
+      "content": 5,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 49,
+      "type": "time_bonus",
+      "content": 5,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 50,
+      "type": "time_bonus",
+      "content": 5,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 51,
+      "type": "time_bonus",
+      "content": 5,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 52,
+      "type": "time_bonus",
+      "content": 5,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 53,
+      "type": "time_bonus",
+      "content": 5,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 54,
+      "type": "time_bonus",
+      "content": 5,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 55,
+      "type": "time_bonus",
+      "content": 5,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 56,
+      "type": "time_bonus",
+      "content": 10,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 57,
+      "type": "time_bonus",
+      "content": 10,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 58,
+      "type": "time_bonus",
+      "content": 10,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 59,
+      "type": "time_bonus",
+      "content": 10,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 60,
+      "type": "time_bonus",
+      "content": 10,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 61,
+      "type": "time_bonus",
+      "content": 10,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 62,
+      "type": "time_bonus",
+      "content": 10,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 63,
+      "type": "time_bonus",
+      "content": 10,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 64,
+      "type": "time_bonus",
+      "content": 10,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 65,
+      "type": "time_bonus",
+      "content": 10,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 66,
+      "type": "time_bonus",
+      "content": 15,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 67,
+      "type": "time_bonus",
+      "content": 15,
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 68,
+      "type": "powerup",
+      "content": "Randomise Question",
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 69,
+      "type": "powerup",
+      "content": "Randomise Question",
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 70,
+      "type": "powerup",
+      "content": "Randomise Question",
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 71,
+      "type": "powerup",
+      "content": "Veto Question",
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 72,
+      "type": "powerup",
+      "content": "Veto Question",
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 73,
+      "type": "powerup",
+      "content": "Veto Question",
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 74,
+      "type": "powerup",
+      "content": "Discard 2 Draw 3",
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 75,
+      "type": "powerup",
+      "content": "Discard 2 Draw 3",
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 76,
+      "type": "powerup",
+      "content": "Duplicate Card",
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 77,
+      "type": "powerup",
+      "content": "Duplicate Card",
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 78,
+      "type": "powerup",
+      "content": "Duplicate Card",
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 79,
+      "type": "powerup",
+      "content": "Discard 1 Draw 2",
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 80,
+      "type": "powerup",
+      "content": "Discard 1 Draw 2",
+      "title": "",
+      "cost": ""
+    },
+    {
+      "id": 81,
+      "type": "powerup",
+      "content": "Randomise Question",
+      "title": "",
+      "cost": ""
+    }
+  ]
