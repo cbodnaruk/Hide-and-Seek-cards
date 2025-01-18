@@ -3,7 +3,9 @@ import { parseDextrousLayout } from "./DextrousParser.js"
 var hand = new Hand()
 var cards = []
 var deckLayout
+var 
 if (localStorage.getItem("deckLayout")){
+
     deckLayout = parseDextrousLayout(JSON.parse(localStorage.getItem("deckLayout")))
     $.getJSON("./deck.json", function (data) {
         cards = data;
@@ -64,7 +66,36 @@ if (localStorage.getItem("deckLayout")){
 
 
 
+function openSettings(){
+    $("#settings").show()
+}
 
+let fileHandle;
+ 
+document.querySelector("#file_upload").onclick = async () => {
+ 
+    [fileHandle] = await window.showOpenFilePicker(options);
+ 
+ const file = await fileHandle.getFile();
+ const content = await file.text();
+ 
+ return content;
+};
+
+function importChange(){
+    var card_import = $("#card_import").val()
+    if (card_import == "Dextrous"){
+        
+        var file_input = document.createElement("input")
+        localStorage.setItem("import", "Dextrous")
+    } else {
+        var file_input = document.createElement("input")
+        $(file_input).attr({accept:".zip", type:"file", id:"file_upload_box"})
+        $("#file_upload").html(file_input)
+        localStorage.setItem("import", "Image")
+    }
+    localStorage.setItem("file")
+}
 
 function handSize(size){
     $("#hand_size").text(`${size}/6`)
@@ -225,3 +256,5 @@ window.discardCard = discardCard;
 window.cardClicked = cardClicked;
 window.unfocus = unfocus;
 window.showDraw = showDraw;
+window.openSettings = openSettings;
+window.importChange = importChange;

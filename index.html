@@ -46,6 +46,17 @@
         </div>
     <div id="draw_market"></div>
     <div id="focus_background" onclick="unfocus()"></div>
+    <div class="container" id="settings_box">
+        <div class="draw_button" onclick="openSettings()">Import</div>
+        <div id="settings">
+            <select id="card_import" onchange="importChange()">
+                <option value="Dextrous">Dextrous</option>
+                <option value="Image">Image</option>
+            </select>
+            <div id="file_upload">Pick File
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

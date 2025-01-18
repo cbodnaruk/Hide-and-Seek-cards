@@ -192,3 +192,14 @@ body {
     transition: all 0.3s linear;
 }
 
+#settings_box {
+    bottom: 0;
+    position: sticky;
+    flex-direction: column;
+}
+
+#settings {
+    display: none;
+    position: sticky;
+    bottom: 0;
+}
