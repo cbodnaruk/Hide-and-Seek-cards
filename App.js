@@ -1,25 +1,70 @@
 import { Card, Hand } from "./Constructors.js"
+import { parseDextrousLayout } from "./DextrousParser.js"
 var hand = new Hand()
 var cards = []
-$.getJSON("./deck.json", function (data) {
-    cards = data;
-
-    // generate cards for testing
-    // for (var i = 0; i < 5; i++) {
-    //     var randomCard = Math.floor(Math.random() * cards.length) + 1
-    //     hand.addCard(getCard(randomCard))
-    //     $("#player_hand").append(hand.DOM);
-    // }
+var deckLayout
+if (localStorage.getItem("deckLayout")){
+    deckLayout = parseDextrousLayout(JSON.parse(localStorage.getItem("deckLayout")))
+    $.getJSON("./deck.json", function (data) {
+        cards = data;
+    
+        // generate cards for testing
+        // for (var i = 0; i < 5; i++) {
+        //     var randomCard = Math.floor(Math.random() * cards.length) + 1
+        //     hand.addCard(getCard(randomCard))
+        //     $("#player_hand").append(hand.DOM);
+        // }
+        handSize(0)
+        if (localStorage.getItem("hand")) {
+            handSize(JSON.parse(localStorage.getItem("hand")).length)
+            JSON.parse(localStorage.getItem("hand")).forEach(card => {
+            hand.addCard(getCard(card.id))
+            // $("#player_hand").append(hand.DOM);
+        })}
+    
+    
+    })
+}else{
+    //display deck selection
+    let filepath = "Layout_layout (2).json"
+    fetch(filepath)
+    .then(response => response.json())
+    .then(data => {deckLayout = parseDextrousLayout(data)})
+    
+    // localStorage.setItem("deckLayout", JSON.stringify(deckLayout))
     handSize(0)
-    if (localStorage.getItem("hand")) {
-        handSize(JSON.parse(localStorage.getItem("hand")).length)
-        JSON.parse(localStorage.getItem("hand")).forEach(card => {
-        hand.addCard(getCard(card.id))
-        // $("#player_hand").append(hand.DOM);
-    })}
+    // if (localStorage.getItem("deck")){
+        $.getJSON("./deck.json", function (data) {
+            cards = data;
+        
+            // generate cards for testing
+            // for (var i = 0; i < 5; i++) {
+            //     var randomCard = Math.floor(Math.random() * cards.length) + 1
+            //     hand.addCard(getCard(randomCard))
+            //     $("#player_hand").append(hand.DOM);
+            // }
+            handSize(0)
+            if (localStorage.getItem("hand")) {
+                handSize(JSON.parse(localStorage.getItem("hand")).length)
+                JSON.parse(localStorage.getItem("hand")).forEach(card => {
+                hand.addCard(getCard(card.id))
+                // $("#player_hand").append(hand.DOM);
+
+            })
+}})
+    // } else {
+//display data selection
+    // }
+    
 
 
-})
+
+
+}
+
+
+
+
 
 function handSize(size){
     $("#hand_size").text(`${size}/6`)
@@ -170,7 +215,7 @@ function showNextDraw(market, count) {
 
 function getCard(id) {
     var card = cards[id - 1]
-    return new Card(card)
+    return new Card(card, deckLayout)
 }
 
 window.getCard = getCard;
