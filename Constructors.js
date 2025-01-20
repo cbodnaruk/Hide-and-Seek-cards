@@ -3,7 +3,11 @@ import { hand_template , market_template } from "./components/Hand.js";
 
 export class Card {
     constructor(card_data, layout) {
-        let newCard = layout.template;
+        let newCard
+        if (layout == "image"){
+            newCard = `<img alt='card image' src='${card_data.src}' class='card_image' onclick="cardClicked(this)" id='${card_data.id}'>`;
+        } else {
+        newCard = layout.template;
         for (const [key, value] of Object.entries(card_data)) {
             if (layout.fields.includes(key)){
                 newCard.children(`.${key}`).text(value);
@@ -16,13 +20,13 @@ export class Card {
         let title_size = (title_length > 20) ? 2 - (title_length/50) : 2;
         newCard.children(".title").css("font-size",`${title_size}em`);
 
-
+    }
 
         this.DOM = newCard;
         this.id = card_data.id;
     }
     focus(){
-        this.DOM.addClass("focused");
+        $(`#${this.id}`).addClass("focused");
         $("#focus_background").show();
         console.log("focused");
 

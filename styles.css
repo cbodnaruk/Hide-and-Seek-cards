@@ -1,6 +1,7 @@
 /* @import url('https://fonts.cdnfonts.com/css/infra'); */
 body {
     font-family: Infra;
+    overflow-y: hidden;
 }
 .card {
     border-color: black;
@@ -23,9 +24,33 @@ body {
     z-index: inherit;
 }
 
+.card_image{
+    border-color: black;
+    background-color: white;
+    border-radius: 2em;
+    border: 3px solid;
+    width: 14em;
+    
+    padding: 5%;
+    display: flex;
+    flex-direction: column;
+    height: 20em;
+    justify-content: space-between;
+    font-size: 2vw;
+    flex-shrink: 0;
+    flex-grow: 0;
+    margin: 2%;
+    scroll-snap-align: center;
+    transition: font-size 0.3s linear;
+    z-index: inherit;
+}
+
+
 .focused {
-    z-index: 3;
+    z-index: 5;
     font-size: 3vw;
+    width: 16em;
+    height: auto;
     transition: all 0.3s linear;
 }
 
@@ -127,7 +152,7 @@ body {
     height: 3em;
 }
 
-.draw_button{
+.button{
     font-weight: 600;
     text-align: center;
     z-index: 3;
@@ -193,13 +218,102 @@ body {
 }
 
 #settings_box {
-    bottom: 0;
-    position: sticky;
-    flex-direction: column;
+
+    z-index: 9;
 }
 
 #settings {
+    margin-top: 10%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 30%;
+    justify-content: space-around;
+    width: 100%;
+}
+
+#import_button {
+    justify-self: center;
+}
+
+#file_upload_button {
+    width: fit-content;
+    border: #000 1px solid;
+    padding: 2%;
+    border-radius: 2em;
+    background-color: #ddd;
+}
+input[type="file"] {
     display: none;
-    position: sticky;
+}
+
+
+.full_container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    top: 0%;
+}
+
+#join_box {
+    z-index: 9;
+
+}
+
+#landing_page {
+    z-index: 10;
+}
+
+#landing_options {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.hidden {
+    top: 100%;
+    transition: all 0.2s linear;
+}
+.qrcode_container{
+    position: absolute;
+    width: 100%;
     bottom: 0;
+    text-align: center;
+}
+#reader_wrapper{
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+text-align: center;
+width: 100%;
+height: 50%;
+top: 0;
+}
+
+#qrcode canvas,img{
+margin-left: auto;
+margin-right: auto;
+display: block;
+padding-bottom: 5%;
+}
+
+#exit_button{
+    border: black solid 1px;
+    padding: 2%;
+    border-radius: 0.5em;
+    position: absolute;
+    bottom: 0;
+    right: 0%;
+    margin: 1%;
+}
+
+#qr_button{
+    border: black solid 1px;
+    padding: 2%;
+    border-radius: 0.5em;
+    position: absolute;
+    bottom: 0;
+    left: 0%;
+    margin: 1%;
 }
