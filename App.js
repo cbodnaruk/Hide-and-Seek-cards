@@ -57,6 +57,7 @@ if (localStorage.getItem("deckActive")) {
     $("#join_box").hide()
     if (importType == "Dextrous") {
         deckLayout = parseDextrousLayout(JSON.parse(localStorage.getItem("deckLayout")))
+        cards = JSON.parse(localStorage.getItem("cardData"))
     }
     else if (importType == "Image") {
         deckSize = localStorage.getItem("imageCount")
@@ -70,40 +71,34 @@ if (localStorage.getItem("deckActive")) {
         }
     }
 
-    $.getJSON("./deck.json", function (data) {
-        cards = data;
-
-        // generate cards for testing
-        // for (var i = 0; i < 5; i++) {
-        //     var randomCard = Math.floor(Math.random() * cards.length) + 1
-        //     hand.addCard(getCard(randomCard))
-        //     $("#player_hand").append(hand.DOM);
-        // }
-
-        handSize(0)
-        if (localStorage.getItem("hand")) {
-            handSize(JSON.parse(localStorage.getItem("hand")).length)
-            JSON.parse(localStorage.getItem("hand")).forEach(card => {
-                hand.addCard(getCard(card.id))
-                // $("#player_hand").append(hand.DOM);
-            })
-        }
+    // $.getJSON("./deck.json", function (data) {
+    //     cards = data;
+    //     handSize(0)
+    //     if (localStorage.getItem("hand")) {
+    //         handSize(JSON.parse(localStorage.getItem("hand")).length)
+    //         JSON.parse(localStorage.getItem("hand")).forEach(card => {
+    //             hand.addCard(getCard(card.id))
+    //             // $("#player_hand").append(hand.DOM);
+    //         })
+    //     }
 
 
-    })
+    // })
 } else {
     if (localStorage.getItem("import") == "Dextrous") {
         var file_input = document.createElement("input")
         $(file_input).attr({ accept: ".json", type: "file", id: "fu_box", onchange: "setText(event)" })
         $("#file_upload").html(file_input)
         $("#file_upload_button").text("Upload a Dextrous .JSON layout")
+        var csv_input = document.createElement("input")
+        $(csv_input).attr({ type: "text", id: "csv_box", placeholder: "Paste link to a Google sheets CSV with card content"})
+        $("#file_upload2").html(csv_input)
     } else {
         var file_input = document.createElement("input")
         $(file_input).attr({ accept: ".zip", type: "file", id: "fu_box", onchange: "setText(event)" })
         $("#file_upload").html(file_input)
         $("#file_upload_button").text("Upload a .zip of card images")
     }
-    // localStorage.setItem("deckLayout", JSON.stringify(deckLayout))
     handSize(0)
     // if (localStorage.getItem("deck")){
     $.getJSON("./deck.json", function (data) {
@@ -148,8 +143,12 @@ function importChange() {
     if (importType == "Dextrous") {
         var file_input = document.createElement("input")
         $(file_input).attr({ accept: ".json", type: "file", id: "fu_box", onchange: "setText(event)" })
+        
         $("#file_upload").html(file_input)
         $("#file_upload_button").text("Upload a Dextrous .JSON layout")
+        var csv_input = document.createElement("input")
+        $(csv_input).attr({ type: "text", id: "csv_box", placeholder: "Paste link to a Google sheets CSV with card content"})
+        $("#file_upload2").html(csv_input)
         localStorage.setItem("import", "Dextrous")
     } else {
         var file_input = document.createElement("input")
@@ -157,11 +156,12 @@ function importChange() {
         $("#file_upload").html(file_input)
         localStorage.setItem("import", "Image")
         $("#file_upload_button").text("Upload a .zip of card images")
+        $("#file_upload2").empty()
     }
 }
 
 function handSize(size) {
-    $("#hand_size").text(`${size}/6`)
+    $("#hand_size").text(`Hand size: ${size}`)
 }
 
 function cardClicked(cardDOM) {
@@ -193,7 +193,7 @@ function cardClicked(cardDOM) {
             }
 
         }
-        $("#draw_approve").text((keptnum < keepnum) ? `${keepnum - keptnum} remaining` : "Approve")
+        $("#draw_approve").text((keptnum < keepnum) ? `${keepnum - keptnum} remaining` : "Confirm")
     }
 }
 
@@ -265,7 +265,7 @@ async function drawCards() {
     }
     var count = 0
     showNextDraw(drawMarket, count)
-    drawMarket.append('<div class="draw_button" id="draw_approve" style="width: fit-content"></div>')
+    drawMarket.append('<div class="button" id="draw_approve" style="width: fit-content"></div>')
     $("#draw_approve").text(`${keepnum - keptnum} remaining`)
     $("#draw_approve").on("click", function () {
         if (keptnum == keepnum) {
@@ -336,7 +336,24 @@ async function getCard(id) {
     }
 }
 
+function loadJSON() {
+    const selectedFile = document.getElementById("fu_box").files[0];
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        localStorage.setItem("deckLayout",e.target.result)
+        deckLayout = parseDextrousLayout(JSON.parse(e.target.result))
+    }
+    $.get($("#csv_box").val(),(data)=>{
+        localStorage.setItem("cardData",JSON.stringify(CSVJSON(data)));
+        cards = CSVJSON(data)
+        createPeerHost()
 
+    })
+    reader.readAsText(selectedFile)
+    localStorage.setItem("deckActive", true)
+    localStorage.setItem("deckID", Math.floor(Math.random() * 1000))
+    
+}
 
 function loadZIP() {
     const selectedFile = document.getElementById("fu_box").files[0];
@@ -563,10 +580,14 @@ function receiveCard(id, image) {
 }
 
 async function sendCards(hostConn) {
+    if (localStorage.getItem("deckType") == "Image"){
     for (let x = 0; x < deckSize; x++) {
         var fullURL = await readImage(x)
         hostConn.send({ type: "image", payload: fullURL.split(",")[1], id: x })
     }
+}else{
+    hostConn.send({type: "JSON",payload: localStorage.getItem("layout")})
+}
     hostConn.send({ type: "loaded" })
 }
 
@@ -612,6 +633,7 @@ window.showDraw = showDraw;
 window.importCards = importCards;
 window.importChange = importChange;
 window.loadZIP = loadZIP;
+window.loadJSON = loadJSON;
 window.readImage = readImage;
 window.hostDeck = hostDeck;
 window.joinDeck = joinDeck;

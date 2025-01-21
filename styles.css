@@ -254,6 +254,8 @@ input[type="file"] {
     height: 100%;
     background-color: white;
     top: 0%;
+    left:0%;
+    padding-left: 2%;
 }
 
 #join_box {
@@ -271,7 +273,7 @@ input[type="file"] {
 }
 
 .hidden {
-    top: 100%;
+    top: 110%;
     transition: all 0.2s linear;
 }
 .qrcode_container{

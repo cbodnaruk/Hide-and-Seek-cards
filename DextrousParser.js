@@ -12,6 +12,7 @@ class LayoutElement {
         this.columnGap = node.columnGap;
         node.childZones.forEach(child => {
             this.children.push(new LayoutElement(child));
+
         });
     }
 }
@@ -22,14 +23,15 @@ class Layout {
         this.fields = [];
         this.name = layout.name;
         this.style = layout.layoutData.style
-        var template = $("<div></div>");	
+        var template = $("<div class='card'></div>");	
         layout.layoutData.childZones.forEach(child => {
             this.children.push(new LayoutElement(child));
             this.fields.push(child.textDataKey);
             var childDOM = $("<div></div>");
-            childDOM.addClass(child.field);
+            childDOM.addClass(child.textDataKey);
             childDOM.addClass(child.type);
             childDOM.css(child.style);
+            childDOM.css("position","absolute")
             template.append(childDOM);
         });
         console.log(template.html());

@@ -9,16 +9,18 @@ export class Card {
         } else {
         newCard = layout.template;
         for (const [key, value] of Object.entries(card_data)) {
+            console.log(layout.fields.includes(key));
+            
             if (layout.fields.includes(key)){
                 newCard.children(`.${key}`).text(value);
             }
         }
-            let content_length = card_data.content.length + card_data.cost.length;
-            let content_size = (content_length > 150) ? 1 - (content_length/2000) : 1;
+        //     let content_length = card_data.content.length + card_data.cost.length;
+        //     let content_size = (content_length > 150) ? 1 - (content_length/2000) : 1;
     
-        let title_length = card_data.title.length;
-        let title_size = (title_length > 20) ? 2 - (title_length/50) : 2;
-        newCard.children(".title").css("font-size",`${title_size}em`);
+        // let title_length = card_data.title.length;
+        // let title_size = (title_length > 20) ? 2 - (title_length/50) : 2;
+        // newCard.children(".title").css("font-size",`${title_size}em`);
 
     }
 
