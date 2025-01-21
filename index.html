@@ -56,12 +56,13 @@
             <label for="card_import">Import type:</label>
             <select id="card_import" onchange="importChange()">
                 <option value=""></option>
-                <!-- <option value="Dextrous">Dextrous</option> -->
+                <option value="Dextrous">Dextrous</option>
                 <option value="Image">Image</option>
             </select>
             <label for="fu_box" id="file_upload_button"></label>
             <div id="file_upload">
             </div>
+            <div id="file_upload2"></div>
             <div class="button" id="import_button" onclick="importCards()">Import</div>
         </div>
     </div>
@@ -73,12 +74,13 @@
     </div>
 
     <div class="full_container" id="landing_page">
-        <h1>Welcome to Fumble</h1>
+        <h1>Fumble</h1>
         <h2>A tool for prototyping and testing cards</h2>
         <div id="landing_options">
             <div id="host_button" class="button" onclick="hostDeck()">Host</div>
             <div id="join_button" class="button" onclick="joinDeck()">Join</div>
         </div>
+        <div id="instructions"><br>Press Host to open a deck (.zip file of images of cards, these can be exported from Dextrous) and share it with others, press Join to join a game hosted by someone else.</div>
     </div>
     <div class="qrcode_container"><span id="qr_heading">Scan to Join</span><div id="qrcode"></div></div>
     <div id="exit_button" onclick="closeDeck()">Close Deck</div>
