@@ -1,7 +1,7 @@
 /* @import url('https://fonts.cdnfonts.com/css/infra'); */
 body {
     font-family: Infra;
-    overflow-y: hidden;
+    overflow-y:hidden;
 }
 .card {
     border-color: black;
@@ -157,10 +157,11 @@ body {
     text-align: center;
     z-index: 3;
     border: 2px solid black;
-    border-radius: 10%;
+    border-radius: 1em;
     padding: 5%;
     width: 3.5em;
     height: 3em;
+    background-color: #fff;
 }
 
 #draw_dialog{
@@ -195,19 +196,22 @@ body {
 }
 
 #draw_market{
-    display: flex;
+    display: none;
     flex-direction: column;
     z-index: 4;
     position: absolute;
-    top: 5%;
+    top: 0%;
     width: 100%;
-    justify-content: center;
     overflow-y: scroll;
+    height: 90%;
+    padding-top: 15%;
 }
 
 .market_card{
     position: relative;
     left: -200px;
+    flex-grow: 1;
+flex-basis:0;
 }
 
 .selected_draw{

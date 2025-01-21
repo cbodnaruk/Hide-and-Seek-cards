@@ -193,7 +193,7 @@ function cardClicked(cardDOM) {
             }
 
         }
-        $("#draw_approve").text((keptnum < keepnum) ? `${keepnum - keptnum} remaining` : "Approve")
+        $("#draw_approve").text((keptnum < keepnum) ? `${keepnum - keptnum} remaining` : "Confirm")
     }
 }
 
@@ -265,7 +265,7 @@ async function drawCards() {
     }
     var count = 0
     showNextDraw(drawMarket, count)
-    drawMarket.append('<div class="draw_button" id="draw_approve" style="width: fit-content"></div>')
+    drawMarket.append('<div class="button" id="draw_approve" style="width: fit-content"></div>')
     $("#draw_approve").text(`${keepnum - keptnum} remaining`)
     $("#draw_approve").on("click", function () {
         if (keptnum == keepnum) {
