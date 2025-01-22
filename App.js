@@ -62,9 +62,10 @@ peer.on('disconnected', () => {
 
 
 function checkPHP(){
-    $.post('/lookup',"aaa",(data)=>{
-        return data
+    $.post('/fumble-id-lookup',"aaa",(data)=>{
         console.log(data);
+        return data
+        
         
     }
 
