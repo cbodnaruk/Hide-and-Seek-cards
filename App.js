@@ -26,6 +26,9 @@ class HostConn {
 window.addEventListener('error', (event) => {
     console.error("An error occurred:", event.message);
     console.log(event)
+    if (confirm("An error has occurred. Press okay to reset the session. If you select cancel and the app is stuck, try deleting stored data for fumble.quest.")){
+        closeDeck()
+    }
 });
 
 peer.on('open', (id) => {
@@ -55,57 +58,18 @@ peer.on('disconnected', () => {
     console.log("disconnected");
 })
 
-if (localStorage.getItem("deckActive")) {
-    role = (localStorage.getItem("host")) ? "host" : "client"
-    $("#settings_box").hide()
-    $("#landing_page").hide()
-    $("#join_box").hide()
-    if (importType == "Dextrous") {
-        deckLayout = parseDextrousLayout(JSON.parse(localStorage.getItem("deckLayout")))
-        cards = JSON.parse(localStorage.getItem("cardData"))
-        deckSize = cards.length
-        if (localStorage.getItem("hand")) {
-            handSize(JSON.parse(localStorage.getItem("hand")).length)
-            JSON.parse(localStorage.getItem("hand")).forEach(async card => {
-                hand.addCard(await getCard(card.id))
-                $("#player_hand").append(hand.DOM);
-            })
-        }
-    }
-    else if (importType == "Image") {
-        deckSize = localStorage.getItem("imageCount")
-        handSize(0)
-        if (localStorage.getItem("hand")) {
-            handSize(JSON.parse(localStorage.getItem("hand")).length)
-            JSON.parse(localStorage.getItem("hand")).forEach(async card => {
-                hand.addCard(await getCard(card.id))
-                $("#player_hand").append(hand.DOM);
-            })
-        }
-    }
 
-} else {
-    if (localStorage.getItem("import") == "Dextrous") {
+
+
+function checkPHP(){
+    $.post('/lookup',"aaa",(data)=>{
+        return data
+        console.log(data);
         
-        var file_input = document.createElement("input")
-        $(file_input).attr({ accept: ".json", type: "file", id: "fu_box", onchange: "setText(event)" })
-        $("#file_upload").html(file_input)
-        $("#file_upload_button").text("Upload a Dextrous .JSON layout")
-        var csv_input = document.createElement("input")
-        $(csv_input).attr({ type: "text", id: "csv_box", placeholder: "Paste link to a Google sheets CSV with card content" })
-        $("#file_upload2").html(csv_input)
-    } else {
-        var file_input = document.createElement("input")
-        $(file_input).attr({ accept: ".zip", type: "file", id: "fu_box", onchange: "setText(event)" })
-        $("#file_upload").html(file_input)
-        $("#file_upload_button").text("Upload a .zip of card images")
     }
-    $("#card_import").val(localStorage.getItem("import")).change()
-    handSize(0)
+
+    )
 }
-
-
-
 
 function importCards() {
     importType = localStorage.getItem("import")
@@ -694,7 +658,7 @@ function hideShowQR() {
 
 
 
-
+window.checkPHP = checkPHP;
 window.hideShowQR = hideShowQR;
 window.closeDeck = closeDeck;
 window.getCard = getCard;
@@ -712,3 +676,52 @@ window.readImage = readImage;
 window.hostDeck = hostDeck;
 window.joinDeck = joinDeck;
 window.setText = setText;
+
+if (localStorage.getItem("deckActive")) {
+    role = (localStorage.getItem("host")) ? "host" : "client"
+    $("#settings_box").hide()
+    $("#landing_page").hide()
+    $("#join_box").hide()
+    if (importType == "Dextrous") {
+        deckLayout = parseDextrousLayout(JSON.parse(localStorage.getItem("deckLayout")))
+        cards = JSON.parse(localStorage.getItem("cardData"))
+        deckSize = cards.length
+        if (localStorage.getItem("hand")) {
+            handSize(JSON.parse(localStorage.getItem("hand")).length)
+            JSON.parse(localStorage.getItem("hand")).forEach(async card => {
+                hand.addCard(await getCard(card.id))
+                $("#player_hand").append(hand.DOM);
+            })
+        }
+    }
+    else if (importType == "Image") {
+        deckSize = localStorage.getItem("imageCount")
+        handSize(0)
+        if (localStorage.getItem("hand")) {
+            handSize(JSON.parse(localStorage.getItem("hand")).length)
+            JSON.parse(localStorage.getItem("hand")).forEach(async card => {
+                hand.addCard(await getCard(card.id))
+                $("#player_hand").append(hand.DOM);
+            })
+        }
+    }
+
+} else {
+    if (localStorage.getItem("import") == "Dextrous") {
+        
+        var file_input = document.createElement("input")
+        $(file_input).attr({ accept: ".json", type: "file", id: "fu_box", onchange: "setText(event)" })
+        $("#file_upload").html(file_input)
+        $("#file_upload_button").text("Upload a Dextrous .JSON layout")
+        var csv_input = document.createElement("input")
+        $(csv_input).attr({ type: "text", id: "csv_box", placeholder: "Paste link to a Google sheets CSV with card content" })
+        $("#file_upload2").html(csv_input)
+    } else {
+        var file_input = document.createElement("input")
+        $(file_input).attr({ accept: ".zip", type: "file", id: "fu_box", onchange: "setText(event)" })
+        $("#file_upload").html(file_input)
+        $("#file_upload_button").text("Upload a .zip of card images")
+    }
+    $("#card_import").val(localStorage.getItem("import")).change()
+    handSize(0)
+}
