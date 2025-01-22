@@ -188,7 +188,13 @@ function CSVstringify(array, options = {}, replacer = v => v) {
 }
 
 function CSVJSON(csv){
-    var arr = CSVparse(csv)
+    var arr;
+    try {
+        arr = CSVparse(csv);
+    } catch (err) {
+        return false
+        
+    }
     var obj_arr = []
     var fields = arr[0]
     var num_lines = arr.length - 1

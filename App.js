@@ -6,7 +6,7 @@ var deckLayout
 var importType = localStorage.getItem("import")
 var peers = []
 var clientConn = null
-var role = null
+var role = localStorage.getItem("role") ?? null
 var deckSize = 0
 var qrcode
 const opfsRoot = await navigator.storage.getDirectory();
@@ -22,6 +22,11 @@ class HostConn {
         hostReady(this.conn)
     }
 }
+
+window.addEventListener('error', (event) => {
+    console.error("An error occurred:", event.message);
+    console.log(event)
+});
 
 peer.on('open', (id) => {
     peerID = id;
@@ -81,6 +86,7 @@ if (localStorage.getItem("deckActive")) {
 
 } else {
     if (localStorage.getItem("import") == "Dextrous") {
+        
         var file_input = document.createElement("input")
         $(file_input).attr({ accept: ".json", type: "file", id: "fu_box", onchange: "setText(event)" })
         $("#file_upload").html(file_input)
@@ -94,6 +100,7 @@ if (localStorage.getItem("deckActive")) {
         $("#file_upload").html(file_input)
         $("#file_upload_button").text("Upload a .zip of card images")
     }
+    $("#card_import").val(localStorage.getItem("import")).change()
     handSize(0)
 }
 
@@ -102,8 +109,9 @@ if (localStorage.getItem("deckActive")) {
 
 function importCards() {
     importType = localStorage.getItem("import")
-    if (importType == "Dextrous") { loadJSON() } else { loadZIP() }
-    $("#settings_box").addClass("hidden")
+    if ((importType == "Dextrous") ? loadJSON() : loadZIP()) {
+        $("#settings_box").addClass("hidden")
+    }
 }
 
 
@@ -324,28 +332,60 @@ function loadJSON() {
         localStorage.setItem("deckLayout", e.target.result)
         deckLayout = parseDextrousLayout(JSON.parse(e.target.result))
     }
-    $.get($("#csv_box").val(), (data) => {
+    var jqxhr = $.get($("#csv_box").val(), (data) => {
         localStorage.setItem("cardData", JSON.stringify(CSVJSON(data)));
         cards = CSVJSON(data)
-        deckSize = cards.length
-        createPeerHost()
+        if (cards){
+        
+            deckSize = cards.length
+            createPeerHost()
+        } else {
+            $("#file_upload2").append("<div style='text-align:center'>There was an error in your CSV, please check the file.</div>")
+            $("#settings_box").removeClass("hidden")
+        }
+
 
     })
-    reader.readAsText(selectedFile)
+        .fail(() => {
+            $("#file_upload2").append("<div style='text-align:center'>File not found, please check the URL.</div>")
+            return false
+        })
+    try {
+        reader.readAsText(selectedFile)
+    } catch (error) {
+        if (!selectedFile) {
+            $("#file_upload_button").css("border", "2px solid red")
+
+        }
+        return false
+    }
+
     localStorage.setItem("deckActive", true)
     localStorage.setItem("deckID", Math.floor(Math.random() * 1000))
+    return true
+
 
 }
 
 function loadZIP() {
+    const warning = $("#fu_error_warning")
     const selectedFile = document.getElementById("fu_box").files[0];
     const reader = new FileReader();
     reader.onload = function (e) {
         var zip = new JSZip();
         zip.loadAsync(e.target.result)
             .then(function (zip) {
+                console.log(zip.folder(/fronts/).length);
+                
+                if (zip.folder(/fronts/).length == 0){
+                    warning.text(".zip file doesn't appear to be exported from Dextrous")
+                    $("#settings_box").removeClass("hidden")
+                }else{
                 zip.folder("fronts").forEach(function (relativePath, zipEntry) {
-
+                    if (!["png","jpg","jpeg","gif"].includes(zipEntry.name.split(".")[-1])){
+                        warning.text(".zip file doesn't appear to be exported from Dextrous")
+                        $("#settings_box").removeClass("hidden")
+                    }else{
                     zipEntry.async("base64").then((blob) => {
 
                         if (zipEntry.name) {
@@ -360,15 +400,24 @@ function loadZIP() {
                                 localStorage.setItem("imageCount", deckSize)
                             })
                         }
-                    })
+                    })}
                     console.log(zipEntry)
-                })
+                })}
             })
     }
+    try{
     reader.readAsArrayBuffer(selectedFile)
+    } catch (err){
+        if (!selectedFile) {
+            $("#file_upload_button").css("border", "2px solid red")
+
+        }
+        return false
+    }
     localStorage.setItem("deckActive", true)
     localStorage.setItem("deckID", Math.floor(Math.random() * 1000))
     createPeerHost()
+    return true
 }
 
 function createPeerHost() {
@@ -380,8 +429,10 @@ function createPeerHost() {
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.L
     })
-    $("#settings_box").hide()
+    $("#settings_box").addClass("hidden")
     localStorage.setItem("host", true)
+    localStorage.setItem("role","host")
+    role = "host"
 }
 
 
@@ -441,7 +492,10 @@ function joinDeck() {
             html5QrCode.start({ facingMode: "environment" }, { qrbox: { width: 250, height: 250 } }, (decodedText, decodedResult) => {
                 console.log(decodedText)
                 $("#reader_wrapper").find("h3").text("Connecting...")
+                var timeout = setTimeout(() => {
+                    $("#reader_wrapper").find("h3").text("Connection timed out. Please try again. If problems persist, try a different browser.")
 
+                }, 10000)
                 $("#reader").animate({ height: "0px" }, 200, "linear", () => {
 
                     html5QrCode.stop().then((ignore) => {
@@ -451,10 +505,11 @@ function joinDeck() {
 
                         clientConn.on('open', () => {
                             clientReady()
+                            clearTimeout(timeout)
                         })
-
                     }).catch((err) => {
-                        // Stop failed, handle it.
+                        console.log(err);
+
                     });
                 })
 
@@ -469,7 +524,7 @@ function joinDeck() {
 }
 
 function clientReady() {
-    qrcode = (localStorage.getItem("host")) ?null: new QRCode(document.getElementById("qrcode"), {
+    qrcode = (localStorage.getItem("host")) ? null : new QRCode(document.getElementById("qrcode"), {
         text: clientConn.peer,
         width: 128,
         height: 128,
@@ -526,6 +581,9 @@ function clientReady() {
 
 }
 
+
+
+
 function hostReady(hostConn) {
     role = "host"
     console.log("recieved connection");
@@ -575,13 +633,13 @@ function receiveImageCard(id, image) {
     })
 }
 
-function receiveJSONDeck(deck){
+function receiveJSONDeck(deck) {
     deckLayout = parseDextrousLayout(JSON.parse(deck.layout))
-    localStorage.setItem("deckLayout",deck.layout)
-    for (let card of deck.data){
+    localStorage.setItem("deckLayout", deck.layout)
+    for (let card of deck.data) {
         cards.push(JSON.parse(card))
     }
-    localStorage.setItem("cardData",JSON.stringify(cards))
+    localStorage.setItem("cardData", JSON.stringify(cards))
 
 }
 async function sendCards(hostConn) {
@@ -592,16 +650,17 @@ async function sendCards(hostConn) {
         }
     } else {
         let jsonCards = []
-        for (let card of cards){
+        for (let card of cards) {
             jsonCards.push(JSON.stringify(card))
         }
-        hostConn.send({ type: "JSON", payload: {layout:localStorage.getItem("deckLayout"),data:jsonCards} })
+        hostConn.send({ type: "JSON", payload: { layout: localStorage.getItem("deckLayout"), data: jsonCards } })
     }
     hostConn.send({ type: "loaded" })
 }
 
 function setText(e) {
     $("#file_upload_button").text(e.target.files[0].name)
+    $("#fu_error_warning").text("")
 }
 
 function closeDeck() {
@@ -631,6 +690,10 @@ function hideShowQR() {
             break;
     }
 }
+
+
+
+
 
 window.hideShowQR = hideShowQR;
 window.closeDeck = closeDeck;

@@ -5,7 +5,7 @@ export class Card {
     constructor(card_data, layout) {
         let newCard
         if (layout == "image"){
-            newCard = `<img alt='card image' src='${card_data.src}' class='card_image' onclick="cardClicked(this)" id='${card_data.id}'>`;
+            newCard = $(`<img alt='card image' src='${card_data.src}' class='card_image' onclick="cardClicked(this)" id='${card_data.id}'>`);
         } else {
         newCard = layout.template.clone();
         for (let field in layout.defaults){

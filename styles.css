@@ -215,6 +215,15 @@ input[type="file"] {
     display: none;
 }
 
+#file_upload2{
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    flex-shrink: 1;
+    justify-content:space-around;
+    align-items: center;
+    padding-top: 5%;
+}
 
 .full_container {
     position: absolute;
@@ -288,4 +297,9 @@ padding-bottom: 5%;
     bottom: 0;
     left: 0%;
     margin: 1%;
+}
+
+#fu_error_warning{
+    text-align: center;
+    color: darkred;
 }
