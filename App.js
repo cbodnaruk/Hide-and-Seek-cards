@@ -13,7 +13,7 @@ const opfsRoot = await navigator.storage.getDirectory();
 
 var allDrawnIDS = []
 
-var peer = new Peer((localStorage.getItem("peerID"))?localStorage.getItem("peerID"):"")
+var peer = new Peer((localStorage.getItem("peerID")) ? localStorage.getItem("peerID") : "")
 var peerID
 
 class HostConn {
@@ -26,7 +26,7 @@ class HostConn {
 peer.on('open', (id) => {
     peerID = id;
     qrcode = (localStorage.getItem("host")) ? new QRCode(document.getElementById("qrcode"), {
-        text: (localStorage.getItem("role")=="client")?localStorage.getItem("host"):peerID,
+        text: (localStorage.getItem("role") == "client") ? localStorage.getItem("host") : peerID,
         width: 128,
         height: 128,
         colorDark: "#000000",
@@ -34,8 +34,8 @@ peer.on('open', (id) => {
         correctLevel: QRCode.CorrectLevel.L
     }) : "x"
     console.log(`peer open at uuid ${id}`);
-    localStorage.setItem("peerID",peerID)
-    if (localStorage.getItem("role") == "client"){
+    localStorage.setItem("peerID", peerID)
+    if (localStorage.getItem("role") == "client") {
         clientConn = peer.connect(localStorage.getItem("host"), { metadata: { app: "fumble", role: "client" } })
 
         clientConn.on('open', () => {
@@ -52,12 +52,20 @@ peer.on('disconnected', () => {
 })
 
 if (localStorage.getItem("deckActive")) {
+    role = (localStorage.getItem("host")) ? "host" : "client"
     $("#settings_box").hide()
     $("#landing_page").hide()
     $("#join_box").hide()
     if (importType == "Dextrous") {
         deckLayout = parseDextrousLayout(JSON.parse(localStorage.getItem("deckLayout")))
         cards = JSON.parse(localStorage.getItem("cardData"))
+        deckSize = cards.length
+        if (localStorage.getItem("hand")) {
+            handSize(JSON.parse(localStorage.getItem("hand")).length)
+        JSON.parse(localStorage.getItem("hand")).forEach(async card => {
+            hand.addCard(await getCard(card.id))
+            $("#player_hand").append(hand.DOM);
+        })}
     }
     else if (importType == "Image") {
         deckSize = localStorage.getItem("imageCount")
@@ -91,7 +99,7 @@ if (localStorage.getItem("deckActive")) {
         $("#file_upload").html(file_input)
         $("#file_upload_button").text("Upload a Dextrous .JSON layout")
         var csv_input = document.createElement("input")
-        $(csv_input).attr({ type: "text", id: "csv_box", placeholder: "Paste link to a Google sheets CSV with card content"})
+        $(csv_input).attr({ type: "text", id: "csv_box", placeholder: "Paste link to a Google sheets CSV with card content" })
         $("#file_upload2").html(csv_input)
     } else {
         var file_input = document.createElement("input")
@@ -143,11 +151,11 @@ function importChange() {
     if (importType == "Dextrous") {
         var file_input = document.createElement("input")
         $(file_input).attr({ accept: ".json", type: "file", id: "fu_box", onchange: "setText(event)" })
-        
+
         $("#file_upload").html(file_input)
         $("#file_upload_button").text("Upload a Dextrous .JSON layout")
         var csv_input = document.createElement("input")
-        $(csv_input).attr({ type: "text", id: "csv_box", placeholder: "Paste link to a Google sheets CSV with card content"})
+        $(csv_input).attr({ type: "text", id: "csv_box", placeholder: "Paste link to a Google sheets CSV with card content" })
         $("#file_upload2").html(csv_input)
         localStorage.setItem("import", "Dextrous")
     } else {
@@ -198,17 +206,24 @@ function cardClicked(cardDOM) {
 }
 
 function unfocus() {
-    var handwidth = document.getElementById("player_hand_inner").scrollWidth
-    var cardwidth = handwidth / hand.cards.length;
-    var cardindex = $(".focused").index();
-    var new_pos = cardindex * cardwidth - (window.screen.width / 4)
-    $("#player_hand_inner").animate({ scrollLeft: new_pos }, 300, 'linear')
-    $(".focused").removeClass("focused")
+    if ($("#draw_market").children().length == 0) {
+        if ($("#draw_dialog")) {
+            var handwidth = document.getElementById("player_hand_inner").scrollWidth
+            var cardwidth = handwidth / hand.cards.length;
+            var cardindex = $(".focused").index();
+            var new_pos = cardindex * cardwidth - (window.screen.width / 4)
+            $("#player_hand_inner").animate({ scrollLeft: new_pos }, 300, 'linear')
+            $(".focused").removeClass("focused")
 
-    $("#focus_background").hide()
-    console.log("unfocused")
-    $("#discard_button").hide()
-    $("#deck_button").show()
+            $("#focus_background").hide()
+            console.log("unfocused")
+            $("#discard_button").hide()
+            $("#deck_button").show()
+        } else {
+            $("#draw_dialog").animate({ top: "-100%" }, 300, 'swing')
+            $("#focus_background").hide()
+        }
+    }
 }
 
 function discardCard() {
@@ -258,8 +273,8 @@ async function drawCards() {
     var drawMarket = $("#draw_market")
     drawMarket.css("display", "flex")
     for (var i = 0; i < drawnCards.length; i++) {
-        var card = drawnCards[i]
-        var cardDOM = $(card.DOM)
+        let card = drawnCards[i]
+        let cardDOM = card.DOM
         cardDOM.addClass("market_card")
         drawMarket.append(cardDOM)
     }
@@ -271,15 +286,17 @@ async function drawCards() {
         if (keptnum == keepnum) {
             $("#draw_market").children().each(async function () {
                 if ($(this).hasClass("selected_draw")) {
-                    var card = drawnIds[$(this).index()]
+                    let card = drawnIds[$(this).index()]
                     hand.addCard(await getCard(card))
-                    if (role == "host"){
+                    if (role == "host") {
                         broadcastDraw(card)
-                    }else {
+                    } else {
                         sendDraw(card)
                     }
                     allDrawnIDS.push(card)
                     localStorage.setItem("hand", JSON.stringify(hand.cards))
+                    console.log(hand.cards);
+
                     handSize(hand.cards.length)
                 } else {
                     var card = $(this)
@@ -294,7 +311,9 @@ async function drawCards() {
                 }
 
             })
-
+            for (let c of hand.cards) {
+                $(c.DOM).removeClass(['market_card', 'selected_draw'])
+            }
         } else {
 
         }
@@ -307,7 +326,7 @@ async function drawCards() {
 function broadcastDraw(id) {
     for (let x in peers) {
         console.log(peers[x]);
-        
+
         peers[x].conn.send({ type: "bdraw", payload: id })
     }
 }
@@ -332,6 +351,7 @@ async function getCard(id) {
         return new Card({ "src": image_data, "id": id }, "image")
     } else {
         var card = cards[id - 1]
+        card.id = id
         return new Card(card, deckLayout)
     }
 }
@@ -340,19 +360,20 @@ function loadJSON() {
     const selectedFile = document.getElementById("fu_box").files[0];
     const reader = new FileReader();
     reader.onload = function (e) {
-        localStorage.setItem("deckLayout",e.target.result)
+        localStorage.setItem("deckLayout", e.target.result)
         deckLayout = parseDextrousLayout(JSON.parse(e.target.result))
     }
-    $.get($("#csv_box").val(),(data)=>{
-        localStorage.setItem("cardData",JSON.stringify(CSVJSON(data)));
+    $.get($("#csv_box").val(), (data) => {
+        localStorage.setItem("cardData", JSON.stringify(CSVJSON(data)));
         cards = CSVJSON(data)
+        deckSize = cards.length
         createPeerHost()
 
     })
     reader.readAsText(selectedFile)
     localStorage.setItem("deckActive", true)
     localStorage.setItem("deckID", Math.floor(Math.random() * 1000))
-    
+
 }
 
 function loadZIP() {
@@ -490,8 +511,8 @@ function joinDeck() {
 
 function clientReady() {
     role = "client"
-    localStorage.setItem("role","client")
-    localStorage.setItem("host",clientConn.peer)
+    localStorage.setItem("role", "client")
+    localStorage.setItem("host", clientConn.peer)
     var newDeck = null
     clientConn.on('data', (data) => {
         console.log("message received");
@@ -510,7 +531,7 @@ function clientReady() {
             case "loaded":
                 $("#join_box").addClass("hidden")
                 localStorage.setItem("deckID", newDeck)
-                localStorage.setItem("deckActive",true)
+                localStorage.setItem("deckActive", true)
                 break;
             case "deckID":
                 console.log(`I have deck ${(localStorage.getItem("deckID")) ? localStorage.getItem("deckID") : "none"}. I want deck ${data.payload}.`);
@@ -526,7 +547,7 @@ function clientReady() {
                 localStorage.setItem("import", data.payload)
                 break;
             case "bdraw":
-                (!allDrawnIDS.includes(data.payload))?allDrawnIDS.push(data.payload):""
+                (!allDrawnIDS.includes(data.payload)) ? allDrawnIDS.push(data.payload) : ""
                 break;
         }
     })
@@ -549,17 +570,17 @@ function hostReady(hostConn) {
 
     }
     hostConn.on('data', (data) => {
-        switch (data.type){
+        switch (data.type) {
             case "deckRes":
-            if (!data.payload) {
-                hostConn.send({ type: "deckType", payload: "Image" })
-                sendCards(hostConn)
-            } else {
-                hostConn.send({ type: "loaded" })
-            }
-            break;
+                if (!data.payload) {
+                    hostConn.send({ type: "deckType", payload: "Image" })
+                    sendCards(hostConn)
+                } else {
+                    hostConn.send({ type: "loaded" })
+                }
+                break;
             case "draw":
-                (!allDrawnIDS.includes(data.payload))?allDrawnIDS.push(data.payload):""
+                (!allDrawnIDS.includes(data.payload)) ? allDrawnIDS.push(data.payload) : ""
                 broadcastDraw(data.payload)
         }
 
@@ -580,14 +601,14 @@ function receiveCard(id, image) {
 }
 
 async function sendCards(hostConn) {
-    if (localStorage.getItem("deckType") == "Image"){
-    for (let x = 0; x < deckSize; x++) {
-        var fullURL = await readImage(x)
-        hostConn.send({ type: "image", payload: fullURL.split(",")[1], id: x })
+    if (localStorage.getItem("deckType") == "Image") {
+        for (let x = 0; x < deckSize; x++) {
+            var fullURL = await readImage(x)
+            hostConn.send({ type: "image", payload: fullURL.split(",")[1], id: x })
+        }
+    } else {
+        hostConn.send({ type: "JSON", payload: localStorage.getItem("layout") })
     }
-}else{
-    hostConn.send({type: "JSON",payload: localStorage.getItem("layout")})
-}
     hostConn.send({ type: "loaded" })
 }
 
