@@ -6,13 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hide and Seek Cards</title>
     <script src="jquery.js"></script>
-    <script src="components/Card.js" type="module"></script>
     <script src="components/Hand.js" type="module"></script>
     <script src="Constructors.js" type="module"></script>
     <script src="jszip.min.js"></script>
     <script src="html5-qrcode.min.js"></script>
     <script src="peerjs.min.js"></script>
     <script src="qrcode.min.js"></script>
+    <script src="csv.js"></script>
     <script type="module" src="DextrousParser.js"></script>
     <script src="deck.json" type="application/json"></script>
     <script src="App.js" type="module"></script>
@@ -56,12 +56,14 @@
             <label for="card_import">Import type:</label>
             <select id="card_import" onchange="importChange()">
                 <option value=""></option>
-                <!-- <option value="Dextrous">Dextrous</option> -->
+                <option value="Dextrous">Dextrous</option>
                 <option value="Image">Image</option>
             </select>
             <label for="fu_box" id="file_upload_button"></label>
             <div id="file_upload">
             </div>
+            <div id="fu_error_warning"></div>
+            <div id="file_upload2"></div>
             <div class="button" id="import_button" onclick="importCards()">Import</div>
         </div>
     </div>

@@ -6,14 +6,14 @@ var deckLayout
 var importType = localStorage.getItem("import")
 var peers = []
 var clientConn = null
-var role = null
+var role = localStorage.getItem("role") ?? null
 var deckSize = 0
 var qrcode
 const opfsRoot = await navigator.storage.getDirectory();
 
 var allDrawnIDS = []
 
-var peer = new Peer((localStorage.getItem("peerID"))?localStorage.getItem("peerID"):"")
+var peer = new Peer((localStorage.getItem("peerID")) ? localStorage.getItem("peerID") : "")
 var peerID
 
 class HostConn {
@@ -23,10 +23,18 @@ class HostConn {
     }
 }
 
+window.addEventListener('error', (event) => {
+    console.error("An error occurred:", event.message);
+    console.log(event)
+    if (confirm("An error has occurred. Press okay to reset the session. If you select cancel and the app is stuck, try deleting stored data for fumble.quest.")){
+        closeDeck()
+    }
+});
+
 peer.on('open', (id) => {
     peerID = id;
     qrcode = (localStorage.getItem("host")) ? new QRCode(document.getElementById("qrcode"), {
-        text: (localStorage.getItem("role")=="client")?localStorage.getItem("host"):peerID,
+        text: (localStorage.getItem("role") == "client") ? localStorage.getItem("host") : peerID,
         width: 128,
         height: 128,
         colorDark: "#000000",
@@ -34,8 +42,8 @@ peer.on('open', (id) => {
         correctLevel: QRCode.CorrectLevel.L
     }) : "x"
     console.log(`peer open at uuid ${id}`);
-    localStorage.setItem("peerID",peerID)
-    if (localStorage.getItem("role") == "client"){
+    localStorage.setItem("peerID", peerID)
+    if (localStorage.getItem("role") == "client") {
         clientConn = peer.connect(localStorage.getItem("host"), { metadata: { app: "fumble", role: "client" } })
 
         clientConn.on('open', () => {
@@ -48,98 +56,27 @@ peer.on('connection', (conn) => {
 })
 peer.on('disconnected', () => {
     console.log("disconnected");
-
 })
 
-if (localStorage.getItem("deckActive")) {
-    $("#settings_box").hide()
-    $("#landing_page").hide()
-    $("#join_box").hide()
-    if (importType == "Dextrous") {
-        deckLayout = parseDextrousLayout(JSON.parse(localStorage.getItem("deckLayout")))
-    }
-    else if (importType == "Image") {
-        deckSize = localStorage.getItem("imageCount")
-        handSize(0)
-        if (localStorage.getItem("hand")) {
-            handSize(JSON.parse(localStorage.getItem("hand")).length)
-            JSON.parse(localStorage.getItem("hand")).forEach(async card => {
-                hand.addCard(await getCard(card.id))
-                $("#player_hand").append(hand.DOM);
-            })
-        }
+
+
+
+function checkPHP(){
+    $.post('/fumble-id-lookup',"aaa",(data)=>{
+        console.log(data);
+        return data
+        
+        
     }
 
-    $.getJSON("./deck.json", function (data) {
-        cards = data;
-
-        // generate cards for testing
-        // for (var i = 0; i < 5; i++) {
-        //     var randomCard = Math.floor(Math.random() * cards.length) + 1
-        //     hand.addCard(getCard(randomCard))
-        //     $("#player_hand").append(hand.DOM);
-        // }
-
-        handSize(0)
-        if (localStorage.getItem("hand")) {
-            handSize(JSON.parse(localStorage.getItem("hand")).length)
-            JSON.parse(localStorage.getItem("hand")).forEach(card => {
-                hand.addCard(getCard(card.id))
-                // $("#player_hand").append(hand.DOM);
-            })
-        }
-
-
-    })
-} else {
-    if (localStorage.getItem("import") == "Dextrous") {
-        var file_input = document.createElement("input")
-        $(file_input).attr({ accept: ".json", type: "file", id: "fu_box", onchange: "setText(event)" })
-        $("#file_upload").html(file_input)
-        $("#file_upload_button").text("Upload a Dextrous .JSON layout")
-    } else {
-        var file_input = document.createElement("input")
-        $(file_input).attr({ accept: ".zip", type: "file", id: "fu_box", onchange: "setText(event)" })
-        $("#file_upload").html(file_input)
-        $("#file_upload_button").text("Upload a .zip of card images")
-    }
-    // localStorage.setItem("deckLayout", JSON.stringify(deckLayout))
-    handSize(0)
-    // if (localStorage.getItem("deck")){
-    $.getJSON("./deck.json", function (data) {
-        cards = data;
-
-        // generate cards for testing
-        // for (var i = 0; i < 5; i++) {
-        //     var randomCard = Math.floor(Math.random() * cards.length) + 1
-        //     hand.addCard(getCard(randomCard))
-        //     $("#player_hand").append(hand.DOM);
-        // }
-        handSize(0)
-        if (localStorage.getItem("hand")) {
-            handSize(JSON.parse(localStorage.getItem("hand")).length)
-            JSON.parse(localStorage.getItem("hand")).forEach(card => {
-                hand.addCard(getCard(card.id))
-                // $("#player_hand").append(hand.DOM);
-
-            })
-        }
-    })
-    // } else {
-    //display data selection
-    // }
-
-
-
-
-
+    )
 }
-
 
 function importCards() {
     importType = localStorage.getItem("import")
-    if (importType == "Dextrous") { loadJSON() } else { loadZIP() }
-    $("#settings_box").addClass("hidden")
+    if ((importType == "Dextrous") ? loadJSON() : loadZIP()) {
+        $("#settings_box").addClass("hidden")
+    }
 }
 
 
@@ -148,8 +85,12 @@ function importChange() {
     if (importType == "Dextrous") {
         var file_input = document.createElement("input")
         $(file_input).attr({ accept: ".json", type: "file", id: "fu_box", onchange: "setText(event)" })
+
         $("#file_upload").html(file_input)
         $("#file_upload_button").text("Upload a Dextrous .JSON layout")
+        var csv_input = document.createElement("input")
+        $(csv_input).attr({ type: "text", id: "csv_box", placeholder: "Paste link to a Google sheets CSV with card content" })
+        $("#file_upload2").html(csv_input)
         localStorage.setItem("import", "Dextrous")
     } else {
         var file_input = document.createElement("input")
@@ -157,11 +98,12 @@ function importChange() {
         $("#file_upload").html(file_input)
         localStorage.setItem("import", "Image")
         $("#file_upload_button").text("Upload a .zip of card images")
+        $("#file_upload2").empty()
     }
 }
 
 function handSize(size) {
-    $("#hand_size").text(`${size}/6`)
+    $("#hand_size").text(`Hand size: ${size}`)
 }
 
 function cardClicked(cardDOM) {
@@ -198,17 +140,24 @@ function cardClicked(cardDOM) {
 }
 
 function unfocus() {
-    var handwidth = document.getElementById("player_hand_inner").scrollWidth
-    var cardwidth = handwidth / hand.cards.length;
-    var cardindex = $(".focused").index();
-    var new_pos = cardindex * cardwidth - (window.screen.width / 4)
-    $("#player_hand_inner").animate({ scrollLeft: new_pos }, 300, 'linear')
-    $(".focused").removeClass("focused")
+    if ($("#draw_market").children().length == 0) {
+        if ($("#draw_dialog")) {
+            var handwidth = document.getElementById("player_hand_inner").scrollWidth
+            var cardwidth = handwidth / hand.cards.length;
+            var cardindex = $(".focused").index();
+            var new_pos = cardindex * cardwidth - (window.screen.width / 4)
+            $("#player_hand_inner").animate({ scrollLeft: new_pos }, 300, 'linear')
+            $(".focused").removeClass("focused")
 
-    $("#focus_background").hide()
-    console.log("unfocused")
-    $("#discard_button").hide()
-    $("#deck_button").show()
+            $("#focus_background").hide()
+            console.log("unfocused")
+            $("#discard_button").hide()
+            $("#deck_button").show()
+        } else {
+            $("#draw_dialog").animate({ top: "-100%" }, 300, 'swing')
+            $("#focus_background").hide()
+        }
+    }
 }
 
 function discardCard() {
@@ -258,8 +207,8 @@ async function drawCards() {
     var drawMarket = $("#draw_market")
     drawMarket.css("display", "flex")
     for (var i = 0; i < drawnCards.length; i++) {
-        var card = drawnCards[i]
-        var cardDOM = $(card.DOM)
+        let card = drawnCards[i]
+        let cardDOM = card.DOM
         cardDOM.addClass("market_card")
         drawMarket.append(cardDOM)
     }
@@ -271,15 +220,17 @@ async function drawCards() {
         if (keptnum == keepnum) {
             $("#draw_market").children().each(async function () {
                 if ($(this).hasClass("selected_draw")) {
-                    var card = drawnIds[$(this).index()]
+                    let card = drawnIds[$(this).index()]
                     hand.addCard(await getCard(card))
-                    if (role == "host"){
+                    if (role == "host") {
                         broadcastDraw(card)
-                    }else {
+                    } else {
                         sendDraw(card)
                     }
                     allDrawnIDS.push(card)
                     localStorage.setItem("hand", JSON.stringify(hand.cards))
+                    console.log(hand.cards);
+
                     handSize(hand.cards.length)
                 } else {
                     var card = $(this)
@@ -294,7 +245,9 @@ async function drawCards() {
                 }
 
             })
-
+            for (let c of hand.cards) {
+                $(c.DOM).removeClass(['market_card', 'selected_draw'])
+            }
         } else {
 
         }
@@ -307,7 +260,7 @@ async function drawCards() {
 function broadcastDraw(id) {
     for (let x in peers) {
         console.log(peers[x]);
-        
+
         peers[x].conn.send({ type: "bdraw", payload: id })
     }
 }
@@ -332,21 +285,72 @@ async function getCard(id) {
         return new Card({ "src": image_data, "id": id }, "image")
     } else {
         var card = cards[id - 1]
+        card.id = id
         return new Card(card, deckLayout)
     }
 }
 
+function loadJSON() {
+    const selectedFile = document.getElementById("fu_box").files[0];
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        localStorage.setItem("deckLayout", e.target.result)
+        deckLayout = parseDextrousLayout(JSON.parse(e.target.result))
+    }
+    var jqxhr = $.get($("#csv_box").val(), (data) => {
+        localStorage.setItem("cardData", JSON.stringify(CSVJSON(data)));
+        cards = CSVJSON(data)
+        if (cards){
+        
+            deckSize = cards.length
+            createPeerHost()
+        } else {
+            $("#file_upload2").append("<div style='text-align:center'>There was an error in your CSV, please check the file.</div>")
+            $("#settings_box").removeClass("hidden")
+        }
 
+
+    })
+        .fail(() => {
+            $("#file_upload2").append("<div style='text-align:center'>File not found, please check the URL.</div>")
+            return false
+        })
+    try {
+        reader.readAsText(selectedFile)
+    } catch (error) {
+        if (!selectedFile) {
+            $("#file_upload_button").css("border", "2px solid red")
+
+        }
+        return false
+    }
+
+    localStorage.setItem("deckActive", true)
+    localStorage.setItem("deckID", Math.floor(Math.random() * 1000))
+    return true
+
+
+}
 
 function loadZIP() {
+    const warning = $("#fu_error_warning")
     const selectedFile = document.getElementById("fu_box").files[0];
     const reader = new FileReader();
     reader.onload = function (e) {
         var zip = new JSZip();
         zip.loadAsync(e.target.result)
             .then(function (zip) {
+                console.log(zip.folder(/fronts/).length);
+                
+                if (zip.folder(/fronts/).length == 0){
+                    warning.text(".zip file doesn't appear to be exported from Dextrous")
+                    $("#settings_box").removeClass("hidden")
+                }else{
                 zip.folder("fronts").forEach(function (relativePath, zipEntry) {
-
+                    if (!["png","jpg","jpeg","gif"].includes(zipEntry.name.split(".")[-1])){
+                        warning.text(".zip file doesn't appear to be exported from Dextrous")
+                        $("#settings_box").removeClass("hidden")
+                    }else{
                     zipEntry.async("base64").then((blob) => {
 
                         if (zipEntry.name) {
@@ -361,15 +365,24 @@ function loadZIP() {
                                 localStorage.setItem("imageCount", deckSize)
                             })
                         }
-                    })
+                    })}
                     console.log(zipEntry)
-                })
+                })}
             })
     }
+    try{
     reader.readAsArrayBuffer(selectedFile)
+    } catch (err){
+        if (!selectedFile) {
+            $("#file_upload_button").css("border", "2px solid red")
+
+        }
+        return false
+    }
     localStorage.setItem("deckActive", true)
     localStorage.setItem("deckID", Math.floor(Math.random() * 1000))
     createPeerHost()
+    return true
 }
 
 function createPeerHost() {
@@ -381,8 +394,10 @@ function createPeerHost() {
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.L
     })
-    $("#settings_box").hide()
+    $("#settings_box").addClass("hidden")
     localStorage.setItem("host", true)
+    localStorage.setItem("role","host")
+    role = "host"
 }
 
 
@@ -429,11 +444,8 @@ function hostDeck() {
 }
 
 function joinDeck() {
-    $("#qr_heading").hide()
     $("#landing_page").addClass("hidden")
     $("#settings_box").addClass("hidden")
-    $("#qr_container").hide()
-    $("#qr_button").hide()
     // This method will trigger user permissions
     Html5Qrcode.getCameras().then(devices => {
         /**
@@ -445,7 +457,10 @@ function joinDeck() {
             html5QrCode.start({ facingMode: "environment" }, { qrbox: { width: 250, height: 250 } }, (decodedText, decodedResult) => {
                 console.log(decodedText)
                 $("#reader_wrapper").find("h3").text("Connecting...")
+                var timeout = setTimeout(() => {
+                    $("#reader_wrapper").find("h3").text("Connection timed out. Please try again. If problems persist, try a different browser.")
 
+                }, 10000)
                 $("#reader").animate({ height: "0px" }, 200, "linear", () => {
 
                     html5QrCode.stop().then((ignore) => {
@@ -455,10 +470,11 @@ function joinDeck() {
 
                         clientConn.on('open', () => {
                             clientReady()
+                            clearTimeout(timeout)
                         })
-
                     }).catch((err) => {
-                        // Stop failed, handle it.
+                        console.log(err);
+
                     });
                 })
 
@@ -469,12 +485,22 @@ function joinDeck() {
         console.log(err);
 
     });
+
 }
 
 function clientReady() {
+    qrcode = (localStorage.getItem("host")) ? null : new QRCode(document.getElementById("qrcode"), {
+        text: clientConn.peer,
+        width: 128,
+        height: 128,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.L
+    })
     role = "client"
-    localStorage.setItem("role","client")
-    localStorage.setItem("host",clientConn.peer)
+    localStorage.setItem("role", "client")
+    localStorage.setItem("host", clientConn.peer)
+
     var newDeck = null
     clientConn.on('data', (data) => {
         console.log("message received");
@@ -486,14 +512,17 @@ function clientReady() {
                 info.text(`Streaming cards: 0/${deckSize}...`)
                 break;
             case "image":
-                receiveCard(data.id, data.payload)
+                receiveImageCard(data.id, data.payload)
                 loadedCards++
                 info.text(`Streaming cards: ${loadedCards}/${deckSize}...`)
+                break;
+            case "JSON":
+                receiveJSONDeck(data.payload)
                 break;
             case "loaded":
                 $("#join_box").addClass("hidden")
                 localStorage.setItem("deckID", newDeck)
-                localStorage.setItem("deckActive",true)
+                localStorage.setItem("deckActive", true)
                 break;
             case "deckID":
                 console.log(`I have deck ${(localStorage.getItem("deckID")) ? localStorage.getItem("deckID") : "none"}. I want deck ${data.payload}.`);
@@ -509,13 +538,16 @@ function clientReady() {
                 localStorage.setItem("import", data.payload)
                 break;
             case "bdraw":
-                (!allDrawnIDS.includes(data.payload))?allDrawnIDS.push(data.payload):""
+                (!allDrawnIDS.includes(data.payload)) ? allDrawnIDS.push(data.payload) : ""
                 break;
         }
     })
     clientConn.on('error', (error) => console.log(error))
 
 }
+
+
+
 
 function hostReady(hostConn) {
     role = "host"
@@ -532,27 +564,31 @@ function hostReady(hostConn) {
 
     }
     hostConn.on('data', (data) => {
-        switch (data.type){
+        switch (data.type) {
             case "deckRes":
-            if (!data.payload) {
-                hostConn.send({ type: "deckType", payload: "Image" })
-                sendCards(hostConn)
-            } else {
-                hostConn.send({ type: "loaded" })
-            }
-            break;
+                if (!data.payload) {
+                    hostConn.send({ type: "deckType", payload: importType })
+                    sendCards(hostConn)
+                } else {
+
+                    hostConn.send({ type: "loaded" })
+                }
+                break;
             case "draw":
-                (!allDrawnIDS.includes(data.payload))?allDrawnIDS.push(data.payload):""
+                (!allDrawnIDS.includes(data.payload)) ? allDrawnIDS.push(data.payload) : ""
                 broadcastDraw(data.payload)
         }
 
+    })
+    hostConn.on('close', () => {
+        peers.splice(peers.indexOf(hostConn), 1)
     })
 }
 
 var loadedCards = 0
 
 
-function receiveCard(id, image) {
+function receiveImageCard(id, image) {
     console.log(id);
     opfsRoot.getFileHandle(id, { create: true }).then((fileHandle) => {
         fileHandle.createWritable().then((writer) => {
@@ -562,16 +598,34 @@ function receiveCard(id, image) {
     })
 }
 
+function receiveJSONDeck(deck) {
+    deckLayout = parseDextrousLayout(JSON.parse(deck.layout))
+    localStorage.setItem("deckLayout", deck.layout)
+    for (let card of deck.data) {
+        cards.push(JSON.parse(card))
+    }
+    localStorage.setItem("cardData", JSON.stringify(cards))
+
+}
 async function sendCards(hostConn) {
-    for (let x = 0; x < deckSize; x++) {
-        var fullURL = await readImage(x)
-        hostConn.send({ type: "image", payload: fullURL.split(",")[1], id: x })
+    if (localStorage.getItem("deckType") == "Image") {
+        for (let x = 0; x < deckSize; x++) {
+            var fullURL = await readImage(x)
+            hostConn.send({ type: "image", payload: fullURL.split(",")[1], id: x })
+        }
+    } else {
+        let jsonCards = []
+        for (let card of cards) {
+            jsonCards.push(JSON.stringify(card))
+        }
+        hostConn.send({ type: "JSON", payload: { layout: localStorage.getItem("deckLayout"), data: jsonCards } })
     }
     hostConn.send({ type: "loaded" })
 }
 
 function setText(e) {
     $("#file_upload_button").text(e.target.files[0].name)
+    $("#fu_error_warning").text("")
 }
 
 function closeDeck() {
@@ -582,6 +636,8 @@ function closeDeck() {
     localStorage.removeItem("imageCount")
     localStorage.removeItem("peerID")
     localStorage.removeItem("role")
+    localStorage.removeItem("cardData")
+    localStorage.removeItem("deckLayout")
     location.reload()
 }
 
@@ -600,6 +656,10 @@ function hideShowQR() {
     }
 }
 
+
+
+
+window.checkPHP = checkPHP;
 window.hideShowQR = hideShowQR;
 window.closeDeck = closeDeck;
 window.getCard = getCard;
@@ -612,7 +672,57 @@ window.showDraw = showDraw;
 window.importCards = importCards;
 window.importChange = importChange;
 window.loadZIP = loadZIP;
+window.loadJSON = loadJSON;
 window.readImage = readImage;
 window.hostDeck = hostDeck;
 window.joinDeck = joinDeck;
 window.setText = setText;
+
+if (localStorage.getItem("deckActive")) {
+    role = (localStorage.getItem("host")) ? "host" : "client"
+    $("#settings_box").hide()
+    $("#landing_page").hide()
+    $("#join_box").hide()
+    if (importType == "Dextrous") {
+        deckLayout = parseDextrousLayout(JSON.parse(localStorage.getItem("deckLayout")))
+        cards = JSON.parse(localStorage.getItem("cardData"))
+        deckSize = cards.length
+        if (localStorage.getItem("hand")) {
+            handSize(JSON.parse(localStorage.getItem("hand")).length)
+            JSON.parse(localStorage.getItem("hand")).forEach(async card => {
+                hand.addCard(await getCard(card.id))
+                $("#player_hand").append(hand.DOM);
+            })
+        }
+    }
+    else if (importType == "Image") {
+        deckSize = localStorage.getItem("imageCount")
+        handSize(0)
+        if (localStorage.getItem("hand")) {
+            handSize(JSON.parse(localStorage.getItem("hand")).length)
+            JSON.parse(localStorage.getItem("hand")).forEach(async card => {
+                hand.addCard(await getCard(card.id))
+                $("#player_hand").append(hand.DOM);
+            })
+        }
+    }
+
+} else {
+    if (localStorage.getItem("import") == "Dextrous") {
+        
+        var file_input = document.createElement("input")
+        $(file_input).attr({ accept: ".json", type: "file", id: "fu_box", onchange: "setText(event)" })
+        $("#file_upload").html(file_input)
+        $("#file_upload_button").text("Upload a Dextrous .JSON layout")
+        var csv_input = document.createElement("input")
+        $(csv_input).attr({ type: "text", id: "csv_box", placeholder: "Paste link to a Google sheets CSV with card content" })
+        $("#file_upload2").html(csv_input)
+    } else {
+        var file_input = document.createElement("input")
+        $(file_input).attr({ accept: ".zip", type: "file", id: "fu_box", onchange: "setText(event)" })
+        $("#file_upload").html(file_input)
+        $("#file_upload_button").text("Upload a .zip of card images")
+    }
+    $("#card_import").val(localStorage.getItem("import")).change()
+    handSize(0)
+}

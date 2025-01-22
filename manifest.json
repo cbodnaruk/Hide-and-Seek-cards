@@ -1,11 +1,11 @@
 {
-    "name": "Hide and Seek Cards",
-    "short_name": "HideSeek",
+    "name": "Fumble.Quest Cards",
+    "short_name": "Fumble",
     "start_url": "/index.html",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#4943a3",
-    "description": "A card management web app for Jetlag hide and seek.",
+    "description": "A card management web app for prototyping games.",
     "icons": [
         {
             "src": "icon192.png",
