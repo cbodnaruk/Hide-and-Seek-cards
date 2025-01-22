@@ -48,7 +48,6 @@ peer.on('connection', (conn) => {
 })
 peer.on('disconnected', () => {
     console.log("disconnected");
-
 })
 
 if (localStorage.getItem("deckActive")) {
@@ -62,10 +61,11 @@ if (localStorage.getItem("deckActive")) {
         deckSize = cards.length
         if (localStorage.getItem("hand")) {
             handSize(JSON.parse(localStorage.getItem("hand")).length)
-        JSON.parse(localStorage.getItem("hand")).forEach(async card => {
-            hand.addCard(await getCard(card.id))
-            $("#player_hand").append(hand.DOM);
-        })}
+            JSON.parse(localStorage.getItem("hand")).forEach(async card => {
+                hand.addCard(await getCard(card.id))
+                $("#player_hand").append(hand.DOM);
+            })
+        }
     }
     else if (importType == "Image") {
         deckSize = localStorage.getItem("imageCount")
@@ -79,19 +79,6 @@ if (localStorage.getItem("deckActive")) {
         }
     }
 
-    // $.getJSON("./deck.json", function (data) {
-    //     cards = data;
-    //     handSize(0)
-    //     if (localStorage.getItem("hand")) {
-    //         handSize(JSON.parse(localStorage.getItem("hand")).length)
-    //         JSON.parse(localStorage.getItem("hand")).forEach(card => {
-    //             hand.addCard(getCard(card.id))
-    //             // $("#player_hand").append(hand.DOM);
-    //         })
-    //     }
-
-
-    // })
 } else {
     if (localStorage.getItem("import") == "Dextrous") {
         var file_input = document.createElement("input")
@@ -108,35 +95,9 @@ if (localStorage.getItem("deckActive")) {
         $("#file_upload_button").text("Upload a .zip of card images")
     }
     handSize(0)
-    // if (localStorage.getItem("deck")){
-    $.getJSON("./deck.json", function (data) {
-        cards = data;
-
-        // generate cards for testing
-        // for (var i = 0; i < 5; i++) {
-        //     var randomCard = Math.floor(Math.random() * cards.length) + 1
-        //     hand.addCard(getCard(randomCard))
-        //     $("#player_hand").append(hand.DOM);
-        // }
-        handSize(0)
-        if (localStorage.getItem("hand")) {
-            handSize(JSON.parse(localStorage.getItem("hand")).length)
-            JSON.parse(localStorage.getItem("hand")).forEach(card => {
-                hand.addCard(getCard(card.id))
-                // $("#player_hand").append(hand.DOM);
-
-            })
-        }
-    })
-    // } else {
-    //display data selection
-    // }
-
-
-
-
-
 }
+
+
 
 
 function importCards() {
@@ -467,11 +428,8 @@ function hostDeck() {
 }
 
 function joinDeck() {
-    $("#qr_heading").hide()
     $("#landing_page").addClass("hidden")
     $("#settings_box").addClass("hidden")
-    $("#qr_container").hide()
-    $("#qr_button").hide()
     // This method will trigger user permissions
     Html5Qrcode.getCameras().then(devices => {
         /**
@@ -507,12 +465,22 @@ function joinDeck() {
         console.log(err);
 
     });
+
 }
 
 function clientReady() {
+    qrcode = (localStorage.getItem("host")) ?null: new QRCode(document.getElementById("qrcode"), {
+        text: clientConn.peer,
+        width: 128,
+        height: 128,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.L
+    })
     role = "client"
     localStorage.setItem("role", "client")
     localStorage.setItem("host", clientConn.peer)
+
     var newDeck = null
     clientConn.on('data', (data) => {
         console.log("message received");
@@ -524,9 +492,12 @@ function clientReady() {
                 info.text(`Streaming cards: 0/${deckSize}...`)
                 break;
             case "image":
-                receiveCard(data.id, data.payload)
+                receiveImageCard(data.id, data.payload)
                 loadedCards++
                 info.text(`Streaming cards: ${loadedCards}/${deckSize}...`)
+                break;
+            case "JSON":
+                receiveJSONDeck(data.payload)
                 break;
             case "loaded":
                 $("#join_box").addClass("hidden")
@@ -573,9 +544,10 @@ function hostReady(hostConn) {
         switch (data.type) {
             case "deckRes":
                 if (!data.payload) {
-                    hostConn.send({ type: "deckType", payload: "Image" })
+                    hostConn.send({ type: "deckType", payload: importType })
                     sendCards(hostConn)
                 } else {
+
                     hostConn.send({ type: "loaded" })
                 }
                 break;
@@ -585,12 +557,15 @@ function hostReady(hostConn) {
         }
 
     })
+    hostConn.on('close', () => {
+        peers.splice(peers.indexOf(hostConn), 1)
+    })
 }
 
 var loadedCards = 0
 
 
-function receiveCard(id, image) {
+function receiveImageCard(id, image) {
     console.log(id);
     opfsRoot.getFileHandle(id, { create: true }).then((fileHandle) => {
         fileHandle.createWritable().then((writer) => {
@@ -600,6 +575,15 @@ function receiveCard(id, image) {
     })
 }
 
+function receiveJSONDeck(deck){
+    deckLayout = parseDextrousLayout(JSON.parse(deck.layout))
+    localStorage.setItem("deckLayout",deck.layout)
+    for (let card of deck.data){
+        cards.push(JSON.parse(card))
+    }
+    localStorage.setItem("cardData",JSON.stringify(cards))
+
+}
 async function sendCards(hostConn) {
     if (localStorage.getItem("deckType") == "Image") {
         for (let x = 0; x < deckSize; x++) {
@@ -607,7 +591,11 @@ async function sendCards(hostConn) {
             hostConn.send({ type: "image", payload: fullURL.split(",")[1], id: x })
         }
     } else {
-        hostConn.send({ type: "JSON", payload: localStorage.getItem("layout") })
+        let jsonCards = []
+        for (let card of cards){
+            jsonCards.push(JSON.stringify(card))
+        }
+        hostConn.send({ type: "JSON", payload: {layout:localStorage.getItem("deckLayout"),data:jsonCards} })
     }
     hostConn.send({ type: "loaded" })
 }
@@ -624,6 +612,8 @@ function closeDeck() {
     localStorage.removeItem("imageCount")
     localStorage.removeItem("peerID")
     localStorage.removeItem("role")
+    localStorage.removeItem("cardData")
+    localStorage.removeItem("deckLayout")
     location.reload()
 }
 
