@@ -6,6 +6,7 @@ var deckLayout
 var importType = localStorage.getItem("import")
 var peers = []
 var clientConn = null
+var hostID = ""
 var role = localStorage.getItem("role") ?? null
 var deckSize = 0
 var qrcode
@@ -26,13 +27,13 @@ class HostConn {
 window.addEventListener('error', (event) => {
     console.error("An error occurred:", event.message);
     console.log(event)
-    if (confirm("An error has occurred. Press okay to reset the session. If you select cancel and the app is stuck, try deleting stored data for fumble.quest.")){
+    if (confirm("An error has occurred. Press okay to reset the session. If you select cancel and the app is stuck, try deleting stored data for fumble.quest.")) {
         closeDeck()
     }
 });
 
-peer.on('open', (id) => {
-    peerID = id;
+peer.on('open', async (id) => {
+    peerID = await transUID(id);
     qrcode = (localStorage.getItem("host")) ? new QRCode(document.getElementById("qrcode"), {
         text: (localStorage.getItem("role") == "client") ? localStorage.getItem("host") : peerID,
         width: 128,
@@ -56,20 +57,21 @@ peer.on('connection', (conn) => {
 })
 peer.on('disconnected', () => {
     console.log("disconnected");
+    $.get(`https://dev.fumble.quest/${peerID}/delete`)
 })
 
 
 
 
-function checkPHP(){
-    $.get('https://dev.fumble.quest/aaa/lookup',(data)=>{
+async function transUID(givenID) {
+    var id
+    await $.get(`https://dev.fumble.quest/${givenID}/lookup`, (data) => {
         console.log(data);
-        return data
-        
-        
-    }
+        id = data.message
 
+    }
     )
+    return id
 }
 
 function importCards() {
@@ -300,8 +302,8 @@ function loadJSON() {
     var jqxhr = $.get($("#csv_box").val(), (data) => {
         localStorage.setItem("cardData", JSON.stringify(CSVJSON(data)));
         cards = CSVJSON(data)
-        if (cards){
-        
+        if (cards) {
+
             deckSize = cards.length
             createPeerHost()
         } else {
@@ -341,38 +343,40 @@ function loadZIP() {
         zip.loadAsync(e.target.result)
             .then(function (zip) {
                 console.log(zip.folder(/fronts/).length);
-                
-                if (zip.folder(/fronts/).length == 0){
+
+                if (zip.folder(/fronts/).length == 0) {
                     warning.text(".zip file doesn't appear to be exported from Dextrous")
                     $("#settings_box").removeClass("hidden")
-                }else{
-                zip.folder("fronts").forEach(function (relativePath, zipEntry) {
-                    if (!["png","jpg","jpeg","gif"].includes(zipEntry.name.split(".")[-1])){
-                        warning.text(".zip file doesn't appear to be exported from Dextrous")
-                        $("#settings_box").removeClass("hidden")
-                    }else{
-                    zipEntry.async("base64").then((blob) => {
+                } else {
+                    zip.folder("fronts").forEach(function (relativePath, zipEntry) {
+                        if (!["png", "jpg", "jpeg", "gif"].includes(zipEntry.name.split(".")[-1])) {
+                            warning.text(".zip file doesn't appear to be exported from Dextrous")
+                            $("#settings_box").removeClass("hidden")
+                        } else {
+                            zipEntry.async("base64").then((blob) => {
 
-                        if (zipEntry.name) {
-                            var img_id = zipEntry.name.split(".")[0].split("/")[1]
-                            console.log(img_id);
-                            opfsRoot.getFileHandle(img_id, { create: true }).then((fileHandle) => {
-                                fileHandle.createWritable().then((writer) => {
-                                    writer.write(blob)
-                                    writer.close()
-                                })
-                                deckSize++
-                                localStorage.setItem("imageCount", deckSize)
+                                if (zipEntry.name) {
+                                    var img_id = zipEntry.name.split(".")[0].split("/")[1]
+                                    console.log(img_id);
+                                    opfsRoot.getFileHandle(img_id, { create: true }).then((fileHandle) => {
+                                        fileHandle.createWritable().then((writer) => {
+                                            writer.write(blob)
+                                            writer.close()
+                                        })
+                                        deckSize++
+                                        localStorage.setItem("imageCount", deckSize)
+                                    })
+                                }
                             })
                         }
-                    })}
-                    console.log(zipEntry)
-                })}
+                        console.log(zipEntry)
+                    })
+                }
             })
     }
-    try{
-    reader.readAsArrayBuffer(selectedFile)
-    } catch (err){
+    try {
+        reader.readAsArrayBuffer(selectedFile)
+    } catch (err) {
         if (!selectedFile) {
             $("#file_upload_button").css("border", "2px solid red")
 
@@ -385,7 +389,7 @@ function loadZIP() {
     return true
 }
 
-function createPeerHost() {
+async function createPeerHost() {
     qrcode = new QRCode(document.getElementById("qrcode"), {
         text: peerID,
         width: 128,
@@ -396,7 +400,7 @@ function createPeerHost() {
     })
     $("#settings_box").addClass("hidden")
     localStorage.setItem("host", true)
-    localStorage.setItem("role","host")
+    localStorage.setItem("role", "host")
     role = "host"
 }
 
@@ -466,12 +470,15 @@ function joinDeck() {
                     html5QrCode.stop().then((ignore) => {
                         // QR Code scanning is stopped.
                         // Start connection here
-                        clientConn = peer.connect(decodedText, { metadata: { app: "fumble", role: "client" } })
+                        transUID(decodedText).then((UUID) => {
+                            clientConn = peer.connect(UUID, { metadata: { app: "fumble", role: "client" } })
 
-                        clientConn.on('open', () => {
-                            clientReady()
-                            clearTimeout(timeout)
+                            clientConn.on('open', () => {
+                                clientReady()
+                                clearTimeout(timeout)
+                            })
                         })
+
                     }).catch((err) => {
                         console.log(err);
 
@@ -489,14 +496,7 @@ function joinDeck() {
 }
 
 function clientReady() {
-    qrcode = (localStorage.getItem("host")) ? null : new QRCode(document.getElementById("qrcode"), {
-        text: clientConn.peer,
-        width: 128,
-        height: 128,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.L
-    })
+
     role = "client"
     localStorage.setItem("role", "client")
     localStorage.setItem("host", clientConn.peer)
@@ -507,6 +507,18 @@ function clientReady() {
 
         var info = $("#reader_wrapper").find("h3")
         switch (data.type) {
+            case "short_id":
+                transUID(data.payload).then((shortID)=>{
+                    qrcode = (localStorage.getItem("host")) ? null : new QRCode(document.getElementById("qrcode"), {
+                        text: shortID,
+                        width: 128,
+                        height: 128,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.L
+                    })
+                })
+            break;
             case "count":
                 deckSize = data.payload
                 info.text(`Streaming cards: 0/${deckSize}...`)
@@ -557,6 +569,7 @@ function hostReady(hostConn) {
         setTimeout(() => {
             hostConn.send({ type: "count", payload: deckSize })
             hostConn.send({ type: "deckID", payload: localStorage.getItem("deckID") })
+            hostConn.send({type:"short_id",payload:peerID})
         }, 500)
 
 
@@ -709,7 +722,7 @@ if (localStorage.getItem("deckActive")) {
 
 } else {
     if (localStorage.getItem("import") == "Dextrous") {
-        
+
         var file_input = document.createElement("input")
         $(file_input).attr({ accept: ".json", type: "file", id: "fu_box", onchange: "setText(event)" })
         $("#file_upload").html(file_input)
