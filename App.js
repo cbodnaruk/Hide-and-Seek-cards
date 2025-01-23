@@ -36,6 +36,11 @@ window.addEventListener('error', (event) => {
 peer.on('open', async (id) => {
     peerID = id;
     shortID ??= await transUID(id);
+    //check if the id is still in the database
+    if (await transUID(shortID) == "No user found with that ID"){
+        shortID = await transUID(id);
+    }
+
     localStorage.setItem("shortID", shortID)
     qrcode = (localStorage.getItem("host")) ? new QRCode(document.getElementById("qrcode"), {
         text: (localStorage.getItem("role") == "client") ? localStorage.getItem("host") : shortID,
@@ -49,7 +54,6 @@ peer.on('open', async (id) => {
     localStorage.setItem("peerID", peerID)
     if (localStorage.getItem("role") == "client") {
         clientConn = peer.connect(localStorage.getItem("host"), { metadata: { app: "fumble", role: "client" } })
-
         clientConn.on('open', () => {
             clientReady()
         })
@@ -476,6 +480,9 @@ function joinDeck() {
                         // QR Code scanning is stopped.
                         // Start connection here
                         let UUID = await transUID(decodedText)
+                        if (UUID == "No user found with that ID"){
+                            $("#reader_wrapper").append("<div>ID not found</div>")
+                        }else{
                         clientConn = peer.connect(UUID, { metadata: { app: "fumble", role: "client" } })
 
                         clientConn.on('open', () => {
@@ -483,7 +490,7 @@ function joinDeck() {
                             clearTimeout(timeout)
                         })
 
-
+                    }
                     }).catch((err) => {
                         console.log(err);
 
@@ -516,6 +523,9 @@ function manualJoin(){
             // QR Code scanning is stopped.
             // Start connection here
             let UUID = await transUID(decodedText)
+            if (UUID == "No user found with that ID"){
+                $("#reader_wrapper").append("<div>ID not found</div>")
+            }else{
             clientConn = peer.connect(UUID, { metadata: { app: "fumble", role: "client" } })
 
             clientConn.on('open', () => {
@@ -523,7 +533,7 @@ function manualJoin(){
                 clearTimeout(timeout)
             })
 
-
+        }
         }).catch((err) => {
             console.log(err);
 
@@ -532,11 +542,8 @@ function manualJoin(){
 }
 
 function clientReady() {
-
     role = "client"
     localStorage.setItem("role", "client")
-
-
     var newDeck = null
     clientConn.on('data', (data) => {
         console.log("message received");
@@ -571,6 +578,7 @@ function clientReady() {
                 $("#join_box").addClass("hidden")
                 localStorage.setItem("deckID", newDeck)
                 localStorage.setItem("deckActive", true)
+                $("#qr_heading").append(`<div>ID: ${localStorage.getItem("host")}</div>`)
                 break;
             case "deckID":
                 console.log(`I have deck ${(localStorage.getItem("deckID")) ? localStorage.getItem("deckID") : "none"}. I want deck ${data.payload}.`);
