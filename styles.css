@@ -169,7 +169,7 @@ body {
     top: 0%;
     width: 100%;
     left: 0;
-    justify-content: center;
+    justify-content: flex-start;
     overflow-y: scroll;
     height: 90%;
     padding-top: 15%;
@@ -178,8 +178,7 @@ body {
 .market_card{
     position: relative;
     left: -200px;
-    flex-grow: 1;
-flex-basis:0;
+
 }
 
 .selected_draw{
