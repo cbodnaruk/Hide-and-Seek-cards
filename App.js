@@ -34,10 +34,11 @@ window.addEventListener('error', (event) => {
 });
 
 peer.on('open', async (id) => {
+    peerID = id;
     shortID ??= await transUID(id);
-    localStorage.setItem("shortID",shortID)
+    localStorage.setItem("shortID", shortID)
     qrcode = (localStorage.getItem("host")) ? new QRCode(document.getElementById("qrcode"), {
-        text: (localStorage.getItem("role") == "client") ? localStorage.getItem("host") : peerID,
+        text: (localStorage.getItem("role") == "client") ? localStorage.getItem("host") : shortID,
         width: 128,
         height: 128,
         colorDark: "#000000",
@@ -448,7 +449,6 @@ function hostDeck() {
     $("#landing_page").addClass("hidden")
     $("#join_box").addClass("hidden")
 }
-
 function joinDeck() {
     $("#landing_page").addClass("hidden")
     $("#settings_box").addClass("hidden")
@@ -469,17 +469,17 @@ function joinDeck() {
                 }, 10000)
                 $("#reader").animate({ height: "0px" }, 200, "linear", () => {
 
-                    html5QrCode.stop().then((ignore) => {
+                    html5QrCode.stop().then(async (ignore) => {
                         // QR Code scanning is stopped.
                         // Start connection here
-                        transUID(decodedText).then((UUID) => {
-                            clientConn = peer.connect(UUID, { metadata: { app: "fumble", role: "client" } })
+                        let UUID = await transUID(decodedText)
+                        clientConn = peer.connect(UUID, { metadata: { app: "fumble", role: "client" } })
 
-                            clientConn.on('open', () => {
-                                clientReady()
-                                clearTimeout(timeout)
-                            })
+                        clientConn.on('open', () => {
+                            clientReady()
+                            clearTimeout(timeout)
                         })
+
 
                     }).catch((err) => {
                         console.log(err);
@@ -501,7 +501,7 @@ function clientReady() {
 
     role = "client"
     localStorage.setItem("role", "client")
-    
+
 
     var newDeck = null
     clientConn.on('data', (data) => {
@@ -510,16 +510,16 @@ function clientReady() {
         var info = $("#reader_wrapper").find("h3")
         switch (data.type) {
             case "short_id":
-                    qrcode = (localStorage.getItem("host")) ? null : new QRCode(document.getElementById("qrcode"), {
-                        text: data.payload,
-                        width: 128,
-                        height: 128,
-                        colorDark: "#000000",
-                        colorLight: "#ffffff",
-                        correctLevel: QRCode.CorrectLevel.L
-                    })
-                    localStorage.setItem("host", data.payload)
-            break;
+                qrcode = (localStorage.getItem("host")) ? null : new QRCode(document.getElementById("qrcode"), {
+                    text: data.payload,
+                    width: 128,
+                    height: 128,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.L
+                })
+                localStorage.setItem("host", data.payload)
+                break;
             case "count":
                 deckSize = data.payload
                 info.text(`Streaming cards: 0/${deckSize}...`)
@@ -570,7 +570,7 @@ function hostReady(hostConn) {
         setTimeout(() => {
             hostConn.send({ type: "count", payload: deckSize })
             hostConn.send({ type: "deckID", payload: localStorage.getItem("deckID") })
-            hostConn.send({type:"short_id",payload:shortID})
+            hostConn.send({ type: "short_id", payload: shortID })
         }, 500)
 
 
