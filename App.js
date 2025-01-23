@@ -672,7 +672,7 @@ function hideShowQR() {
 
 
 
-window.checkPHP = checkPHP;
+window.transUID = transUID;
 window.hideShowQR = hideShowQR;
 window.closeDeck = closeDeck;
 window.getCard = getCard;
