@@ -16,6 +16,7 @@ var allDrawnIDS = []
 
 var peer = new Peer((localStorage.getItem("peerID")) ? localStorage.getItem("peerID") : "")
 var peerID
+var shortID = localStorage.getItem("shortID") ?? null
 
 class HostConn {
     constructor(connection) {
@@ -33,7 +34,8 @@ window.addEventListener('error', (event) => {
 });
 
 peer.on('open', async (id) => {
-    peerID = await transUID(id);
+    shortID ??= await transUID(id);
+    localStorage.setItem("shortID",shortID)
     qrcode = (localStorage.getItem("host")) ? new QRCode(document.getElementById("qrcode"), {
         text: (localStorage.getItem("role") == "client") ? localStorage.getItem("host") : peerID,
         width: 128,
@@ -57,7 +59,7 @@ peer.on('connection', (conn) => {
 })
 peer.on('disconnected', () => {
     console.log("disconnected");
-    $.get(`https://dev.fumble.quest/${peerID}/delete`)
+    $.get(`https://dev.fumble.quest/${shortID}/delete`)
 })
 
 
@@ -349,7 +351,7 @@ function loadZIP() {
                     $("#settings_box").removeClass("hidden")
                 } else {
                     zip.folder("fronts").forEach(function (relativePath, zipEntry) {
-                        if (!["png", "jpg", "jpeg", "gif"].includes(zipEntry.name.split(".")[-1])) {
+                        if (!["png", "jpg", "jpeg", "gif"].includes(zipEntry.name.split(".")[1])) {
                             warning.text(".zip file doesn't appear to be exported from Dextrous")
                             $("#settings_box").removeClass("hidden")
                         } else {
@@ -391,7 +393,7 @@ function loadZIP() {
 
 async function createPeerHost() {
     qrcode = new QRCode(document.getElementById("qrcode"), {
-        text: peerID,
+        text: shortID,
         width: 128,
         height: 128,
         colorDark: "#000000",
@@ -499,7 +501,7 @@ function clientReady() {
 
     role = "client"
     localStorage.setItem("role", "client")
-    localStorage.setItem("host", clientConn.peer)
+    
 
     var newDeck = null
     clientConn.on('data', (data) => {
@@ -508,16 +510,15 @@ function clientReady() {
         var info = $("#reader_wrapper").find("h3")
         switch (data.type) {
             case "short_id":
-                transUID(data.payload).then((shortID)=>{
                     qrcode = (localStorage.getItem("host")) ? null : new QRCode(document.getElementById("qrcode"), {
-                        text: shortID,
+                        text: data.payload,
                         width: 128,
                         height: 128,
                         colorDark: "#000000",
                         colorLight: "#ffffff",
                         correctLevel: QRCode.CorrectLevel.L
                     })
-                })
+                    localStorage.setItem("host", data.payload)
             break;
             case "count":
                 deckSize = data.payload
@@ -569,7 +570,7 @@ function hostReady(hostConn) {
         setTimeout(() => {
             hostConn.send({ type: "count", payload: deckSize })
             hostConn.send({ type: "deckID", payload: localStorage.getItem("deckID") })
-            hostConn.send({type:"short_id",payload:peerID})
+            hostConn.send({type:"short_id",payload:shortID})
         }, 500)
 
 
@@ -647,7 +648,6 @@ function closeDeck() {
     localStorage.removeItem("deckActive")
     localStorage.removeItem("host")
     localStorage.removeItem("imageCount")
-    localStorage.removeItem("peerID")
     localStorage.removeItem("role")
     localStorage.removeItem("cardData")
     localStorage.removeItem("deckLayout")
