@@ -405,6 +405,7 @@ async function createPeerHost() {
     localStorage.setItem("host", true)
     localStorage.setItem("role", "host")
     role = "host"
+    $("#qr_heading").append(`<div>ID: ${shortID}</div>`)
 }
 
 
@@ -449,6 +450,8 @@ function hostDeck() {
     $("#landing_page").addClass("hidden")
     $("#join_box").addClass("hidden")
 }
+var html5QrCode
+
 function joinDeck() {
     $("#landing_page").addClass("hidden")
     $("#settings_box").addClass("hidden")
@@ -459,7 +462,7 @@ function joinDeck() {
          * { id: "id", label: "label" }
          */
         if (devices && devices.length) {
-            const html5QrCode = new Html5Qrcode(/* element id */ "reader");
+            html5QrCode = new Html5Qrcode(/* element id */ "reader");
             html5QrCode.start({ facingMode: "environment" }, { qrbox: { width: 250, height: 250 } }, (decodedText, decodedResult) => {
                 console.log(decodedText)
                 $("#reader_wrapper").find("h3").text("Connecting...")
@@ -495,6 +498,37 @@ function joinDeck() {
 
     });
 
+}
+
+
+function manualJoin(){
+    var decodedText = $("#id_input").val()
+    
+    console.log(decodedText)
+    $("#reader_wrapper").find("h3").text("Connecting...")
+    var timeout = setTimeout(() => {
+        $("#reader_wrapper").find("h3").text("Connection timed out. Please try again. If problems persist, try a different browser.")
+
+    }, 10000)
+    $("#reader").animate({ height: "0px" }, 200, "linear", () => {
+
+        html5QrCode.stop().then(async (ignore) => {
+            // QR Code scanning is stopped.
+            // Start connection here
+            let UUID = await transUID(decodedText)
+            clientConn = peer.connect(UUID, { metadata: { app: "fumble", role: "client" } })
+
+            clientConn.on('open', () => {
+                clientReady()
+                clearTimeout(timeout)
+            })
+
+
+        }).catch((err) => {
+            console.log(err);
+
+        });
+    })
 }
 
 function clientReady() {
@@ -670,8 +704,7 @@ function hideShowQR() {
 }
 
 
-
-
+window.manualJoin = manualJoin;
 window.transUID = transUID;
 window.hideShowQR = hideShowQR;
 window.closeDeck = closeDeck;
