@@ -553,6 +553,7 @@ function clientReady() {
                     correctLevel: QRCode.CorrectLevel.L
                 })
                 localStorage.setItem("host", data.payload)
+                $("#qr_heading").append(`<div>ID: ${data.payload}</div>`)
                 break;
             case "count":
                 deckSize = data.payload
