@@ -62,7 +62,7 @@ peer.on('disconnected', () => {
 
 
 function checkPHP(){
-    $.post('https://dev.fumble.quest/fumble-id-lookup',"aaa",(data)=>{
+    $.get('https://dev.fumble.quest/aaa/lookup',(data)=>{
         console.log(data);
         return data
         
