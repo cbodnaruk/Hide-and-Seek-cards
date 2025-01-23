@@ -622,7 +622,7 @@ function receiveJSONDeck(deck) {
 
 }
 async function sendCards(hostConn) {
-    if (localStorage.getItem("deckType") == "Image") {
+    if (localStorage.getItem("import") == "Image") {
         for (let x = 0; x < deckSize; x++) {
             var fullURL = await readImage(x)
             hostConn.send({ type: "image", payload: fullURL.split(",")[1], id: x })
